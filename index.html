@@ -1,0 +1,1516 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>뮤지컬 소년의 초상｜정산 시트</title>
+    <script src="https://cdn.tailwindcss.com/3.4.3"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" 
+          integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" 
+          crossorigin="anonymous" 
+          referrerpolicy="no-referrer" />
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" 
+        integrity="sha512-BNaRQnYJYiPSqHHDb58B0yaPfCu+Wgds8Gp/gU33kqBtgNS4tSPHuGibyoeqMV/TJlSKda6FXzoEyYGjTe+vXA==" 
+        crossorigin="anonymous" 
+        referrerpolicy="no-referrer"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        prt: {
+                            50: '#f4f6f5', 100: '#e2e8e4', 200: '#c5d1cc', 300: '#9fb5ad',
+                            400: '#77958b', 500: '#577a70', 600: '#436058', 700: '#364d47', 
+                            800: '#2d3e3a', 900: '#263330',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Vercel Web Analytics -->
+    <script> window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+    </script>
+    <script defer src="https://cdn.vercel-insights.com/v1/script.js"></script>
+    
+    <style>
+        @font-face {
+            font-family: 'Paperlogy';
+            src: url('./Paperlogy-5Medium.ttf') format('truetype');
+            font-weight: normal;
+            font-style: normal;
+        }
+        @font-face {
+            font-family: 'Baekbeom';
+            src: url('./baekbeom.ttf') format('truetype');
+            font-weight: normal;
+            font-style: normal;
+        }
+
+        body, input, select, button, textarea { 
+            font-family: 'Paperlogy', "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif; 
+        }
+        #export-container, #export-container * {
+            font-family: 'Baekbeom', sans-serif !important;
+        }
+        
+        body { background-color: #f8fafc; letter-spacing: 0.5px; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        
+        ::-webkit-scrollbar { width: 4px; height: 4px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+
+        input[type="date"] { box-sizing: border-box; max-width: 100%; -webkit-appearance: none; }
+        
+        .heatmap-container { width: 100%; overflow-x: auto; padding-bottom: 30px; padding-top: 10px; display: flex; justify-content: center; }
+        .heatmap-container > div { width: max-content; min-width: 100%; margin: 0 auto; display: flex; flex-direction: column; align-items: center; padding: 0 10px; }
+
+        .modal-overlay {
+            position: fixed; inset: 0; background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(4px);
+            z-index: 100; display: none; align-items: center; justify-content: center; padding: 20px;
+        }
+        .modal-overlay.active { display: flex; animation: fadeIn 0.2s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        @media screen and (max-width: 768px) {
+            input[type="date"], input[type="text"], select { font-size: 16px !important; }
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8 text-slate-800">
+
+    <div class="max-w-7xl mx-auto space-y-6">
+        <header class="bg-gradient-to-r from-prt-900 to-prt-800 text-prt-50 p-6 rounded-2xl shadow-md flex flex-col md:flex-row justify-between items-center gap-4">
+            <div>
+                <h1 class="text-2xl font-bold tracking-tight flex items-center gap-2">
+                    <span class="text-xl">🎨</span> 뮤지컬 &lt;소년의 초상&gt;
+                </h1>
+                <p class="text-prt-200 text-xs mt-1">2026-07-28 ~ 2026-10-18 | 대학로 TOM(티오엠) 2관</p>
+                
+                <div class="mt-3 flex items-center gap-2 relative flex-wrap">
+                    <button onclick="exportData()" class="text-[10px] bg-prt-800 border border-prt-700 hover:bg-prt-700 px-2.5 py-1 rounded text-prt-100 transition flex items-center font-medium">
+                        <i class="fa-solid fa-download mr-1"></i>데이터 백업
+                    </button>
+                    <label class="cursor-pointer text-[10px] bg-prt-800 border border-prt-700 hover:bg-prt-700 px-2.5 py-1 rounded text-prt-100 transition flex items-center font-medium m-0">
+                        <i class="fa-solid fa-upload mr-1"></i>데이터 복원
+                        <input type="file" id="importFile" class="hidden" accept=".json" onchange="importData(event)">
+                    </label>
+                    <button onclick="fullReset()" class="text-[10px] bg-rose-900/30 border border-rose-800/50 hover:bg-rose-700 hover:text-white px-2.5 py-1 rounded text-rose-200 transition flex items-center font-medium">
+                        <i class="fa-solid fa-rotate-right mr-1"></i>전체 리셋
+                    </button>
+
+                    <div class="relative group inline-block">
+                        <button class="text-prt-300 hover:text-white text-xs p-1 focus:outline-none flex items-center justify-center">
+                            <i class="fa-solid fa-circle-info"></i>
+                        </button>
+                        <div class="absolute top-full right-0 md:left-0 md:right-auto mt-2 w-[280px] max-w-[85vw] bg-slate-950 text-slate-200 text-[11px] p-3 rounded-xl shadow-xl border border-slate-700 hidden group-hover:block z-50 space-y-1.5 leading-relaxed text-left">
+                            <p class="font-bold text-prt-500 border-b border-slate-800 pb-1 flex items-center gap-1">
+                                <i class="fa-solid fa-gear"></i> 데이터 관리 안내
+                            </p>
+                            <p><strong>📥 데이터 백업:</strong> 현재까지 기록한 모든 정보를 백업합니다.</p>
+                            <p><strong>📤 데이터 복원:</strong> 백업해둔 파일을 선택하여 복원합니다.</p>
+                            <p><strong>🔄 전체 리셋:</strong> 모든 기록을 삭제하고 초기화합니다.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-3 gap-2 md:gap-3 w-full md:w-auto mt-2 md:mt-0">
+                
+                <div tabindex="0" onclick="const ov = document.getElementById('otherCouponOverlay'); ov.classList.toggle('hidden'); ov.classList.toggle('flex');" class="bg-prt-900 border border-prt-700 px-2 py-2 md:px-4 md:py-2 rounded-xl text-center shadow-inner relative group flex flex-col justify-center items-center min-w-[95px] md:min-w-[110px] cursor-pointer focus:outline-none">
+                    <span class="text-[10px] md:text-[11px] block text-prt-300 font-medium mb-1 pointer-events-none">기타 할인권</span>
+                    <span id="globalOtherCouponCount" class="text-sm md:text-lg font-bold text-prt-200 leading-none mt-auto pointer-events-none">0장</span>
+                    
+                    <div id="otherCouponOverlay" class="absolute inset-0 bg-prt-900/95 hidden md:group-hover:flex items-center justify-center rounded-xl gap-2 backdrop-blur-sm border border-prt-700">
+                        <button onclick="adjustTicket('otherCoupons', -1); event.stopPropagation();" class="w-6 h-6 bg-prt-700 text-white rounded-full text-xs hover:bg-rose-500 transition flex items-center justify-center">-</button>
+                        <span id="hoverOtherCouponCount" class="text-xs font-bold text-prt-100 min-w-[12px] text-center">0</span>
+                        <button onclick="adjustTicket('otherCoupons', 1); event.stopPropagation();" class="w-6 h-6 bg-prt-700 text-white rounded-full text-xs hover:bg-emerald-500 transition flex items-center justify-center">+</button>
+                    </div>
+                </div>
+                
+                <div class="bg-prt-900 border border-prt-700 px-2 py-2 md:px-4 md:py-2 rounded-xl text-center shadow-inner flex flex-col justify-center items-center min-w-[95px] md:min-w-[110px]">
+                    <span class="text-[10px] md:text-[11px] block text-prt-300 font-medium mb-1">재관람 할인권</span>
+                    <span id="globalCouponCount" class="text-sm md:text-lg font-bold text-prt-400 leading-none mt-auto">0장</span>
+                </div>
+
+                <div class="bg-prt-900 border border-prt-700 px-2 py-2 md:px-4 md:py-2 rounded-xl text-center shadow-inner flex flex-col justify-center items-center min-w-[95px] md:min-w-[110px]">
+                    <span class="text-[10px] md:text-[11px] block text-prt-300 font-medium mb-1">특별 혜택권</span>
+                    <span id="globalOstCount" class="text-sm md:text-lg font-bold text-amber-400 leading-none mt-auto">0장</span>
+                </div>
+            </div>
+        </header>
+
+        <div class="flex border-b border-slate-200 gap-1 md:gap-2 bg-white p-1.5 md:p-2 rounded-xl shadow-sm w-full">
+            <button onclick="switchTab('logSheet')" id="btn-logSheet" class="tab-btn flex-1 px-1 md:px-4 py-2 md:py-2.5 font-bold text-xs md:text-sm rounded-lg transition-all bg-prt-500 text-white shadow-sm flex flex-col md:flex-row items-center justify-center gap-1 md:gap-1.5 break-keep">
+                <i class="fa-solid fa-pen-to-square"></i> <span>관극 기록</span>
+            </button>
+            <button onclick="switchTab('calendarSheet')" id="btn-calendarSheet" class="tab-btn flex-1 px-1 md:px-4 py-2 md:py-2.5 font-medium text-xs md:text-sm rounded-lg text-slate-600 hover:bg-slate-50 transition-all flex flex-col md:flex-row items-center justify-center gap-1 md:gap-1.5 break-keep">
+                <i class="fa-solid fa-calendar-days"></i> <span>캘린더</span>
+            </button>
+            <button onclick="switchTab('settlementSheet')" id="btn-settlementSheet" class="tab-btn flex-1 px-1 md:px-4 py-2 md:py-2.5 font-medium text-xs md:text-sm rounded-lg text-slate-600 hover:bg-slate-50 transition-all flex flex-col md:flex-row items-center justify-center gap-1 md:gap-1.5 break-keep">
+                <i class="fa-solid fa-chart-pie"></i> <span>관극 정산</span>
+            </button>
+        </div>
+
+        <div id="logSheet" class="tab-content active">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex flex-col">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-sm font-bold text-slate-900 flex items-center gap-1.5">
+                            <i class="fa-solid fa-stamp text-prt-500"></i> 보유 도장판
+                        </h2>
+                        <button onclick="createNewCard()" class="text-xs bg-prt-50 text-prt-600 hover:bg-prt-100 px-2.5 py-1.5 rounded-lg font-semibold transition shadow-sm">
+                            + 추가
+                        </button>
+                    </div>
+                    <div id="cardContainer" class="space-y-3 flex-grow overflow-y-auto max-h-[400px] pr-1"></div>
+                </div>
+
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex flex-col relative">
+                    <div id="scheduleLoadingOverlay" class="absolute inset-0 bg-white/80 backdrop-blur-sm z-10 flex flex-col items-center justify-center rounded-2xl">
+                        <i class="fa-solid fa-spinner fa-spin text-2xl text-prt-500 mb-2"></i>
+                        <span class="text-xs font-bold text-slate-600 mt-2">스케줄 불러오는 중...</span>
+                    </div>
+
+                    <div class="flex justify-between items-center mb-4">
+                        <div class="flex items-center gap-1.5">
+                            <h2 class="text-sm font-bold text-slate-900 flex items-center gap-1.5" id="formTitle">
+                                <i class="fa-solid fa-pen text-prt-500"></i> 관극 기록
+                            </h2>
+                             <div class="relative group inline-block">
+                                <i class="fa-solid fa-circle-question text-slate-400 hover:text-prt-500 text-sm cursor-pointer transition"></i>
+                                <div class="absolute bottom-full left-0 mb-2 w-[270px] bg-slate-800 text-slate-100 text-[11px] p-3.5 rounded-xl shadow-xl hidden group-hover:block z-50 leading-relaxed text-left font-normal border border-slate-700">
+                                    <p class="font-bold text-prt-300 border-b border-slate-700 pb-1 mb-2 flex items-center gap-1">
+                                        <i class="fa-solid fa-lightbulb"></i> 기록 작성 방법
+                                    </p>
+                                    <ol class="list-decimal pl-4 space-y-1.5 text-slate-300">
+                                        <li>적립할 <strong>도장판을 선택</strong>하여 활성화합니다.</li>
+                                        <li>관극 <strong>날짜와 회차, 좌석 정보</strong>를 입력합니다.</li>
+                                        <li>적립할 <strong>도장 개수</strong>와 <strong>할인권 사용 여부</strong>를 체크합니다.</li>
+                                        <li>하단의 <strong>[저장 및 적립]</strong>을 누르면 완료!</li>
+                                    </ol>
+                                </div>
+                            </div>
+                        </div>
+                        <button id="cancelEditBtn" onclick="cancelEdit()" class="text-[10px] bg-slate-100 text-slate-500 hover:bg-slate-200 px-2 py-1 rounded hidden transition">수정 취소</button>
+                    </div>
+                    
+                    <form id="recordForm" onsubmit="addOrUpdateRecord(event)" class="space-y-4 flex-grow flex flex-col">
+                        <input type="hidden" id="editRecordId" value="">
+                        
+                        <div id="editCardArea" class="hidden bg-prt-50 p-3 rounded-xl border border-prt-200 mb-1">
+                            <label class="block text-[11px] font-bold text-prt-800 mb-1.5 flex items-center gap-1">
+                                <i class="fa-solid fa-folder-tree"></i> 도장판 변경
+                            </label>
+                            <select id="editCardSelect" class="w-full border border-prt-200 bg-white p-2 rounded-lg text-xs focus:outline-none focus:border-prt-500 font-medium text-slate-700">
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-500 mb-1">관극 날짜</label>
+                            <input type="date" id="perfDate" min="2026-07-28" max="2026-10-18" required onchange="handleDateChange()"
+                                   class="w-full border border-slate-200 p-2 rounded-xl text-sm focus:outline-none focus:border-prt-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-500 mb-1">회차 선택</label>
+                            <select id="perfTime" required onchange="handleTimeChange()" class="w-full border border-slate-200 p-2 rounded-xl text-sm focus:outline-none focus:border-prt-500">
+                                <option value="">날짜를 먼저 선택하세요</option>
+                            </select>
+                        </div>
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                            <div>
+                                <label class="block text-[11px] font-semibold text-slate-500 mb-1">로지나</label>
+                                <select id="castRosina" class="w-full border border-slate-200 p-2 rounded-xl text-sm bg-white cursor-pointer focus:outline-none focus:border-prt-500 transition-colors hover:bg-slate-50">
+                                    <option value="임예진">임예진</option><option value="성민재">성민재</option><option value="박소현">박소현</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-semibold text-slate-500 mb-1">마르타</label>
+                                <select id="castMartha" class="w-full border border-slate-200 p-2 rounded-xl text-sm bg-white cursor-pointer focus:outline-none focus:border-prt-500 transition-colors hover:bg-slate-50">
+                                    <option value="송영미">송영미</option><option value="김수">김수</option><option value="김단이">김단이</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-semibold text-slate-500 mb-1">마르첼로</label>
+                                <select id="castMarcello" class="w-full border border-slate-200 p-2 rounded-xl text-sm bg-white cursor-pointer focus:outline-none focus:border-prt-500 transition-colors hover:bg-slate-50">
+                                    <option value="김이담">김이담</option><option value="박선영">박선영</option><option value="정백선">정백선</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-semibold text-slate-500 mb-1">야코포</label>
+                                <select id="castJacopo" class="w-full border border-slate-200 p-2 rounded-xl text-sm bg-white cursor-pointer focus:outline-none focus:border-prt-500 transition-colors hover:bg-slate-50">
+                                    <option value="윤지성">윤지성</option><option value="도유현">도유현</option><option value="조은성">조은성</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-500 mb-1">좌석 정보</label>
+                            <input type="text" id="seatInfo" placeholder="예: C1-14, B3-8 (미입력 시 '관극 예정')" 
+                                class="w-full border border-slate-200 p-2 rounded-xl text-sm focus:outline-none focus:border-prt-500 uppercase">
+                        </div>
+                        
+                        <div class="grid grid-cols-2 gap-3 mt-auto pt-2" id="stampSettingsArea">
+                            <div class="bg-slate-50 p-2 rounded-xl border border-slate-100">
+                                <label class="block text-[10px] font-semibold text-slate-500 mb-1">도장 개수</label>
+                                <select id="stampsEarned" class="w-full bg-white border border-slate-200 p-1 rounded-lg text-xs">
+                                    <option value="1">1개</option><option value="2">2개</option><option value="3">3개</option>
+                                </select>
+                            </div>
+                            <div class="bg-slate-50 p-2 rounded-xl border border-slate-100">
+                                <label class="block text-[10px] font-semibold text-slate-500 mb-1">할인권 사용</label>
+                                <select id="couponType" onchange="handleCouponChange(this)" class="w-full bg-white border border-slate-200 p-1 rounded-lg text-xs focus:outline-none focus:border-prt-500">
+                                    <option value="">미사용</option>
+                                    <option value="40">재관람 할인권</option>
+                                    <option value="other">기타 할인권</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <button type="submit" id="submitBtn" class="w-full bg-slate-900 text-white py-2.5 rounded-xl hover:bg-slate-800 transition text-sm font-medium mt-2">
+                            💾 저장 및 적립
+                        </button>
+                    </form>
+                </div>
+
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex flex-col">
+                    <h2 class="text-sm font-bold text-slate-900 mb-4 flex items-center gap-1.5">
+                        <i class="fa-solid fa-list-ol text-prt-500"></i> 관극 타임라인
+                    </h2>
+                    <div class="flex-grow overflow-y-auto max-h-[450px] pr-1">
+                        <table class="w-full text-left text-xs border-collapse">
+                            <tbody id="recordTableBody" class="divide-y divide-slate-100"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="calendarSheet" class="tab-content">
+            <div class="bg-white p-4 md:p-6 rounded-2xl shadow-sm border border-slate-100 flex flex-col">
+                <div class="flex justify-between items-center mb-2 px-2 md:px-6">
+                    <button onclick="changeMonth(-1)" class="w-8 h-8 rounded-full bg-slate-100 text-slate-600 hover:bg-prt-100 hover:text-prt-700 flex items-center justify-center transition shadow-sm">
+                        <i class="fa-solid fa-chevron-left"></i>
+                    </button>
+                    <h2 id="calendarMonthLabel" class="text-xl font-bold text-slate-800 tracking-wide">2026년 7월</h2>
+                    <button onclick="changeMonth(1)" class="w-8 h-8 rounded-full bg-slate-100 text-slate-600 hover:bg-prt-100 hover:text-prt-700 flex items-center justify-center transition shadow-sm">
+                        <i class="fa-solid fa-chevron-right"></i>
+                    </button>
+                </div>
+                
+                <div class="flex justify-end gap-3 px-2 md:px-6 mb-2 text-[10px] text-slate-500 font-medium">
+                    <span class="flex items-center gap-1.5">
+                        <span class="w-3 h-3 bg-slate-50 border border-slate-200 inline-block rounded-sm"></span>미예매
+                    </span>
+                    <span class="flex items-center gap-1.5">
+                        <span class="w-3 h-3 bg-prt-600 border border-prt-700 inline-block rounded-sm shadow-sm"></span>예매 완료
+                    </span>
+                </div>
+                
+                <div class="flex justify-end px-2 md:px-6 mb-4 w-full">
+                    <div class="flex gap-1.5 w-full md:w-auto flex-wrap">
+                        <select id="calFilterRo" onchange="updateCalFilter()" class="flex-1 md:w-24 text-[8px] md:text-xs border border-slate-200 bg-slate-50 rounded-lg p-1.5 text-slate-700 font-medium focus:outline-none focus:border-prt-500 cursor-pointer transition">
+                            <option value="">로지나</option><option value="임예진">임예진</option><option value="성민재">성민재</option><option value="박소현">박소현</option>
+                        </select>
+                        <select id="calFilterMa" onchange="updateCalFilter()" class="flex-1 md:w-24 text-[8px] md:text-xs border border-slate-200 bg-slate-50 rounded-lg p-1.5 text-slate-700 font-medium focus:outline-none focus:border-prt-500 cursor-pointer transition">
+                            <option value="">마르타</option><option value="송영미">송영미</option><option value="김수">김수</option><option value="김단이">김단이</option>
+                        </select>
+                        <select id="calFilterMc" onchange="updateCalFilter()" class="flex-1 md:w-24 text-[8px] md:text-xs border border-slate-200 bg-slate-50 rounded-lg p-1.5 text-slate-700 font-medium focus:outline-none focus:border-prt-500 cursor-pointer transition">
+                            <option value="">마르첼로</option><option value="김이담">김이담</option><option value="박선영">박선영</option><option value="정백선">정백선</option>
+                        </select>
+                        <select id="calFilterJa" onchange="updateCalFilter()" class="flex-1 md:w-24 text-[8px] md:text-xs border border-slate-200 bg-slate-50 rounded-lg p-1.5 text-slate-700 font-medium focus:outline-none focus:border-prt-500 cursor-pointer transition">
+                            <option value="">야코포</option><option value="윤지성">윤지성</option><option value="도유현">도유현</option><option value="조은성">조은성</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="w-full overflow-x-auto pb-4">
+                    <div class="min-w-[340px] md:min-w-full border border-slate-200 bg-slate-200 grid grid-cols-7 gap-px rounded-xl overflow-hidden shadow-inner" id="calendarGrid">
+                        </div>
+                </div>
+                
+                <div class="px-2 md:px-6 mt-1 text-right text-[10px] text-slate-400 tracking-tight">
+                    *실제와 다르거나 변경된 스케줄이 반영되지 않을 수 있습니다.<br>
+                    참고용으로만 사용 바라며 문의 사항은 DM 부탁드립니다.
+                </div>
+            </div>
+        </div>
+
+        <div id="settlementSheet" class="tab-content space-y-6">
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-5 gap-3 border-b border-slate-100 pb-4">
+                    <h2 class="text-base font-bold text-slate-900 flex items-center gap-1.5">
+                        <i class="fa-solid fa-chart-line text-prt-500"></i> 캐스트 및 페어 정산
+                    </h2>
+                    <button id="exportImageBtn" onclick="openPreviewModal()" class="text-xs bg-prt-800 text-prt-50 px-4 py-2 rounded-xl hover:bg-prt-900 transition flex items-center gap-2 shadow-sm font-bold">
+                        <i class="fa-solid fa-image text-prt-300"></i> 정산표 이미지로 저장
+                    </button>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-200/60">
+                        <h3 class="text-xs font-bold text-slate-700 mb-3 border-b pb-1.5 flex justify-between items-center">
+                            <span>🎭 로지나</span>
+                        </h3>
+                        <div id="reportRosina" class="space-y-2"></div>
+                    </div>
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-200/60">
+                        <h3 class="text-xs font-bold text-slate-700 mb-3 border-b pb-1.5 flex justify-between items-center">
+                            <span>🎭 마르타</span>
+                        </h3>
+                        <div id="reportMartha" class="space-y-2"></div>
+                    </div>
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-200/60">
+                        <h3 class="text-xs font-bold text-slate-700 mb-3 border-b pb-1.5 flex justify-between items-center">
+                            <span>🎭 마르첼로</span>
+                        </h3>
+                        <div id="reportMarcello" class="space-y-2"></div>
+                    </div>
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-200/60">
+                        <h3 class="text-xs font-bold text-slate-700 mb-3 border-b pb-1.5 flex justify-between items-center">
+                            <span>🎭 야코포</span>
+                        </h3>
+                        <div id="reportJacopo" class="space-y-2"></div>
+                    </div>
+                    <div class="md:col-span-2 lg:col-span-4 bg-slate-50 p-4 rounded-xl border border-slate-200/60 flex flex-col">
+                        <h3 class="text-xs font-bold text-slate-700 mb-3 border-b pb-1.5 flex justify-between items-center">
+                            <span>👥 전체 페어 조합</span>
+                            <span id="totalPairCount" class="text-[10px] text-slate-400 font-normal">총 0회</span>
+                        </h3>
+                        <div id="reportPair" class="space-y-2 flex-grow overflow-y-auto max-h-[150px] pr-1 grid grid-cols-1 md:grid-cols-2 gap-x-4"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white p-4 md:p-6 rounded-2xl border border-slate-200 shadow-sm space-y-6 overflow-hidden">
+                <div class="flex flex-col border-b border-slate-100 pb-4 mb-6">
+                    <h2 class="text-slate-900 font-bold text-lg flex items-center justify-start gap-2 mb-4">
+                        <i class="fa-solid fa-map-location-dot text-slate-700"></i> 대학로 TOM 2관 좌석표
+                    </h2>
+                    <div class="flex justify-center flex-wrap gap-x-4 gap-y-2 text-[10px] md:text-[11px] font-medium text-slate-700 bg-slate-50 p-2.5 rounded-xl border border-slate-200 shadow-sm w-max max-w-full mx-auto">
+                        <div class="flex items-center gap-1.5"><div class="w-3 h-3 bg-slate-100 border border-slate-200 rounded-sm"></div><span>0회</span></div>
+                        <div class="flex items-center gap-1.5"><div class="w-3 h-3 bg-red-200 border border-red-300 rounded-sm"></div><span>1회</span></div>
+                        <div class="flex items-center gap-1.5"><div class="w-3 h-3 bg-yellow-200 border border-yellow-300 rounded-sm"></div><span>2회</span></div>
+                        <div class="flex items-center gap-1.5"><div class="w-3 h-3 bg-green-200 border border-green-300 rounded-sm"></div><span>3회</span></div>
+                        <div class="flex items-center gap-1.5"><div class="w-3 h-3 bg-blue-200 border border-blue-300 rounded-sm"></div><span>4회</span></div>
+                        <div class="flex items-center gap-1.5"><div class="w-3 h-3 bg-prt-500 border border-prt-600 rounded-sm"></div><span>5회+</span></div>
+                    </div>
+                </div>
+
+                <div class="heatmap-container relative w-full flex justify-center pb-12">
+                    <div class="flex flex-col items-center w-full max-w-4xl mx-auto overflow-visible px-4">
+                        <div class="w-[200px] md:w-[320px] mx-auto bg-slate-800 text-white text-center text-[10px] md:text-xs py-1.5 md:py-2 rounded-b-xl md:rounded-b-2xl tracking-widest font-bold shadow-sm mb-6 z-20">
+                            S T A G E
+                        </div>
+                        <div class="w-full flex justify-center items-start mt-4" id="seating-grid"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="imagePreviewModal" class="modal-overlay z-[120]" onclick="if(event.target === this) closePreviewModal()">
+        <div class="bg-white rounded-2xl p-5 w-full max-w-4xl flex flex-col items-center shadow-2xl relative">
+            <div class="flex justify-between w-full mb-4 items-center">
+                <h3 class="text-lg font-bold text-slate-800"><i class="fa-solid fa-image text-prt-500 mr-2"></i>정산표 미리보기</h3>
+                <button onclick="closePreviewModal()" class="text-slate-400 hover:text-rose-500 transition text-2xl px-2">
+                    <i class="fa-solid fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="w-full bg-slate-100 rounded-xl p-2 mb-5 flex items-center justify-center min-h-[300px] border border-slate-200 overflow-auto">
+                <img id="previewImage" src="" class="max-w-full h-auto rounded shadow-sm hidden" alt="정산표 미리보기">
+                <div id="previewLoading" class="text-slate-400 flex flex-col items-center gap-2">
+                    <i class="fa-solid fa-spinner fa-spin text-3xl"></i>
+                    <span class="text-sm font-medium">이미지를 생성하고 있습니다...</span>
+                </div>
+            </div>
+
+            <div class="flex gap-3 w-full justify-end">
+                <button onclick="closePreviewModal()" class="px-5 py-2.5 bg-slate-200 text-slate-700 hover:bg-slate-300 rounded-xl font-medium transition">취소</button>
+                <button onclick="downloadRenderedImage()" id="finalDownloadBtn" disabled class="px-6 py-2.5 bg-prt-800 text-white hover:bg-prt-900 rounded-xl font-bold transition flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-md">
+                    <i class="fa-solid fa-download"></i> 이미지 저장하기
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="scheduleDetailModal" class="modal-overlay z-[110]" onclick="if(event.target === this) closeScheduleDetailModal()">
+        <div class="bg-white rounded-2xl p-6 w-full max-w-md flex flex-col shadow-2xl relative">
+            <button onclick="closeScheduleDetailModal()" class="absolute top-4 right-4 text-slate-400 hover:text-rose-500 transition text-xl px-2">
+                <i class="fa-solid fa-times"></i>
+            </button>
+            <div id="scheduleDetailContent"></div>
+        </div>
+    </div>
+
+    <div id="export-container" style="position: fixed; top: 0; left: -9999px; width: 1400px; height: auto; z-index: -9999; font-family: 'Baekbeom', sans-serif; pointer-events: none;"></div>
+
+    <footer class="mt-12 mb-8 pt-6 border-t border-slate-200 text-center text-[11px] text-slate-400 leading-relaxed">
+        <p class="mb-1 text-slate-500 font-medium">본 사이트는 특정 작품의 관극 지원을 위해 제작되었으며, 수익 창출을 목적으로 하지 않습니다.</p>
+        <p class="mt-3"><span class="inline-block mx-1">Font by paperlogy</span> | <span class="inline-block mx-1">Icons by FontAwesome</span> | <span class="inline-block mx-1">Powered by Tailwind CSS & html2canvas</span></p>
+        <p class="mt-3 flex items-center justify-center gap-1"><i class="fa-solid fa-shield-halved text-slate-300"></i>입력된 데이터는 접속하신 기기의 브라우저에서만 로컬로 저장됩니다.</p>
+        <p class="mt-4 font-semibold text-slate-300">&copy; 2026 Custom Sheet Maker. All rights reserved.</p>
+    </footer>
+
+    <script>
+        function recalculateState() {
+            sortRecordsChronologically();
+
+            appData.cards.forEach(c => c.stamps = 0);
+            appData.coupons = 0;
+            appData.ostTickets = 0;
+            appData.otherCoupons = appData.baseOtherCoupons || 0;
+            
+            appData.records.forEach(record => {
+                if (record.useCoupon === true && !record.couponType) record.couponType = '40';
+                else if (record.useCoupon === false && !record.couponType) record.couponType = '';
+
+                if (record.couponType === '40') appData.coupons--;
+                else if (record.couponType === 'other') appData.otherCoupons--;
+
+                let card = appData.cards.find(c => c.id === record.cardId);
+                
+                if (!card) {
+                    card = appData.cards[0]; 
+                    if (!card) {
+                        card = { id: Date.now(), stamps: 0, isActive: true };
+                        appData.cards.push(card);
+                    }
+                    record.cardId = card.id;
+                }
+
+                const oldStamps = card.stamps;
+                card.stamps += record.qty;
+
+                // 재관람 혜택 (추후 변경 가능하도록 임시 로직 유지)
+                if (oldStamps < 3 && card.stamps >= 3) appData.coupons += 2;
+                if (oldStamps < 7 && card.stamps >= 7) appData.ostTickets += 1;
+            });
+        }
+
+        let castSchedule = {};
+        let eventsByDate = {};
+        
+        let appData = JSON.parse(localStorage.getItem('portraitOfABoySheetStorage')) || {
+            cards: [{ id: Date.now(), stamps: 0, isActive: true }], coupons: 0, ostTickets: 0, records: [], baseOtherCoupons: 0
+        };
+        if (appData.baseOtherCoupons === undefined) appData.baseOtherCoupons = 0;
+
+        let globalStats = null;
+        let generatedImageUrl = '';
+
+        const __todayForCal = new Date();
+        let calYear = 2026;
+        let calMonth = __todayForCal.getMonth();
+        if (__todayForCal.getFullYear() < 2026 || calMonth < 6) calMonth = 6;
+        else if (__todayForCal.getFullYear() > 2026 || calMonth > 9) calMonth = 9;
+        let currentCalDate = new Date(calYear, calMonth, 1);
+
+        const ribbonColors = [
+            'bg-blue-100 text-blue-800 border-blue-200',
+            'bg-pink-100 text-pink-800 border-pink-200',
+            'bg-teal-100 text-teal-800 border-teal-200',
+            'bg-yellow-100 text-yellow-800 border-yellow-200',
+            'bg-purple-100 text-purple-800 border-purple-200',
+            'bg-orange-100 text-orange-800 border-orange-200',
+            'bg-green-100 text-green-800 border-green-200'
+        ];
+        let eventColorMap = {};
+
+        let calFilterRo = '', calFilterMa = '', calFilterMc = '', calFilterJa = '';
+        
+        function updateCalFilter() {
+            calFilterRo = document.getElementById('calFilterRo').value;
+            calFilterMa = document.getElementById('calFilterMa').value;
+            calFilterMc = document.getElementById('calFilterMc').value;
+            calFilterJa = document.getElementById('calFilterJa').value;
+            renderCalendar();
+        }
+
+        let colorIndex = 0;
+
+        const imagePaths = {
+            poster: './메인 포스터.jpg',
+            tex2: './질감2.jpg',
+            tex3: './질감3.jpg',
+            tex4: './질감4.jpg',
+            deco: './deco.png',
+            prtLogo: './logo.png',
+            actors: {
+                '임예진': './로지나_임예진.jpg', '성민재': './로지나_성민재.jpg', '박소현': './로지나_박소현.jpg',
+                '송영미': './마르타_송영미.jpg', '김수': './마르타_김수.jpg', '김단이': './마르타_김단이.jpg',
+                '김이담': './마르첼로_김이담.jpg', '박선영': './마르첼로_박선영.jpg', '정백선': './마르첼로_정백선.jpg',
+                '윤지성': './야코포_윤지성.jpg', '도유현': './야코포_도유현.jpg', '조은성': './야코포_조은성.jpg'
+            }
+        };
+
+        function exportData() {
+            const dataStr = JSON.stringify(appData);
+            const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
+            const exportFileName = `portrait_backup_${new Date().toISOString().slice(0,10)}.json`;
+            const linkElement = document.createElement('a');
+            linkElement.setAttribute('href', dataUri);
+            linkElement.setAttribute('download', exportFileName);
+            document.body.appendChild(linkElement);
+            linkElement.click();
+            document.body.removeChild(linkElement);
+        }
+
+        function importData(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const imported = JSON.parse(e.target.result);
+                    if (imported && imported.cards && imported.records) {
+                        appData = imported;
+                        saveData();
+                        alert('✅ 데이터 복원 완료!');
+                    } else {
+                        alert('🚨 올바른 백업 파일(JSON)이 아닙니다.');
+                    }
+                } catch (err) {
+                    alert('🚨 파일을 읽는 중 오류가 발생했습니다.');
+                }
+            };
+            reader.readAsText(file);
+            event.target.value = '';
+        }
+
+        async function loadScheduleFromGoogleSheet() {
+            // [!] 소년의 초상 양식에 맞춘 새로운 구글 시트 ID로 변경 필요
+            const sheetId = '1QTDHt94bZkniW1dqwg6esnLq79cuXFHJ_ZSZZpUEQdw'; 
+            const url = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:csv`;
+
+            try {
+                const response = await fetch(url);
+                if (!response.ok) throw new Error(`서버 응답 오류 (상태 코드: ${response.status})`);
+
+                const csvText = await response.text();
+                if (csvText.trim().toLowerCase().startsWith('<!doctype html>') || csvText.trim().toLowerCase().startsWith('<html')) {
+                    throw new Error('데이터 대신 웹페이지(HTML)가 반환되었습니다.\n스프레드시트 권한 확인 요망.');
+                }
+                
+                const rows = parseCSV(csvText);
+                
+                rows.forEach((cols, index) => {
+                    if (index === 0 || cols.length < 2) return; 
+                    
+                    let rawDate = cols[0] ? cols[0].trim() : '';
+                    if (!rawDate) return;
+
+                    const nums = rawDate.match(/\d+/g);
+                    if (!nums || nums.length < 2) return; 
+
+                    let mm = (nums.length >= 3 ? nums[1] : nums[0]).padStart(2, '0');
+                    let dd = (nums.length >= 3 ? nums[2] : nums[1]).padStart(2, '0');
+                    const dateStr = `2026-${mm}-${dd}`;
+                    
+                    let timeStr = cols[1] ? cols[1].trim() : '';
+                    if (!timeStr) return;
+                    if (/^\d{1,2}:\d{2}:\d{2}$/.test(timeStr)) timeStr = timeStr.substring(0, 5);
+                    
+                    if (!castSchedule[dateStr]) castSchedule[dateStr] = {};
+                    
+                    // 소년의 초상 구글 시트 템플릿 (날짜|시간|로지나|마르타|마르첼로|야코포|이벤트)
+                    castSchedule[dateStr][timeStr] = [
+                        cols[2] ? cols[2].trim() : '', 
+                        cols[3] ? cols[3].trim() : '', 
+                        cols[4] ? cols[4].trim() : '',
+                        cols[5] ? cols[5].trim() : ''
+                    ];
+
+                    let eventStr = cols[6] ? cols[6].trim() : '';
+                    if (eventStr) {
+                        eventsByDate[dateStr] = eventStr;
+                    }
+                });
+
+                const allDates = Object.keys(eventsByDate).sort();
+                allDates.forEach(d => {
+                    const ev = eventsByDate[d];
+                    if (!eventColorMap[ev]) {
+                        eventColorMap[ev] = ribbonColors[colorIndex % ribbonColors.length];
+                        colorIndex++;
+                    }
+                });
+
+            } catch (error) {
+                console.error('스케줄 로드 실패:', error);
+                // alert(`🚨 스케줄 데이터를 불러오지 못했습니다!\n\n${error.message}`);
+            } finally {
+                document.getElementById('scheduleLoadingOverlay').style.display = 'none';
+            }
+        }
+
+        function parseCSV(text) {
+            const result = [];
+            let row = [], inQuotes = false, val = '';
+            for (let i = 0; i < text.length; i++) {
+                const char = text[i];
+                if (char === '"' && text[i+1] === '"') { val += '"'; i++; }
+                else if (char === '"') inQuotes = !inQuotes;
+                else if (char === ',' && !inQuotes) { row.push(val); val = ''; }
+                else if (char === '\n' && !inQuotes) { row.push(val); result.push(row); row = []; val = ''; }
+                else if (char !== '\r') val += char;
+            }
+            row.push(val); result.push(row); return result;
+        }
+
+        const getTimeWeight = (timeStr) => {
+            if (timeStr.includes('낮공')) return 1000;
+            if (timeStr.includes('밤공')) return 2000;
+            const match = timeStr.match(/(\d{1,2}):(\d{2})/);
+            return match ? parseInt(match[1], 10) * 60 + parseInt(match[2], 10) : 9999;
+        };
+
+        function sortRecordsChronologically() { appData.records.sort((a, b) => { if (a.date !== b.date) return a.date.localeCompare(b.date); return getTimeWeight(a.time) - getTimeWeight(b.time); }); }
+        
+        function saveData() { 
+            recalculateState();
+            localStorage.setItem('portraitOfABoySheetStorage', JSON.stringify(appData)); 
+            renderAll(); 
+        }
+
+        function fullReset() { if(confirm("정말 모두 초기화하시겠습니까?")) { appData = { cards: [{ id: Date.now(), stamps: 0, isActive: true }], coupons: 0, ostTickets: 0, records: [], baseOtherCoupons: 0 }; saveData(); alert('초기화 완료'); } }
+        
+        function adjustTicket(type, amount) { 
+            if (type === 'otherCoupons') {
+                appData.baseOtherCoupons = Math.max(0, (appData.baseOtherCoupons || 0) + amount);
+                saveData(); 
+            }
+        }
+
+        function handleCouponChange(elem) {
+            if (elem.value === '40' && appData.coupons <= 0) {
+                alert('재관람 할인권이 부족합니다.'); 
+                elem.value = '';
+            } else if (elem.value === 'other' && appData.otherCoupons <= 0) {
+                alert('기타 할인권이 부족합니다.'); 
+                elem.value = '';
+            }
+        }
+        
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => { b.classList.remove('bg-prt-500', 'text-white', 'shadow-sm', 'font-bold'); b.classList.add('text-slate-600', 'hover:bg-slate-50', 'font-medium'); });
+            document.getElementById(tabId).classList.add('active');
+            const tb = document.getElementById(`btn-${tabId}`);
+            tb.classList.remove('text-slate-600', 'hover:bg-slate-50', 'font-medium'); tb.classList.add('bg-prt-500', 'text-white', 'shadow-sm', 'font-bold');
+            
+            if (tabId === 'calendarSheet') {
+                const t = new Date();
+                let m = t.getMonth();
+                if (t.getFullYear() < 2026 || m < 6) m = 6;
+                else if (t.getFullYear() > 2026 || m > 9) m = 9;
+                currentCalDate = new Date(2026, m, 1);
+                renderCalendar();
+            }
+        }
+
+        function handleDateChange() {
+            const dateInput = document.getElementById('perfDate').value;
+            const timeSelect = document.getElementById('perfTime');
+            const currentTimeVal = timeSelect.value;
+            timeSelect.innerHTML = '';
+            if (!dateInput) { timeSelect.innerHTML = '<option value="">선택</option>'; return; }
+            
+            const daySchedule = castSchedule[dateInput];
+            let optionsHtml = '<option value="">선택하세요</option>';
+            
+            if (daySchedule) {
+                const availableTimes = Object.keys(daySchedule).sort((a, b) => getTimeWeight(a) - getTimeWeight(b));
+                availableTimes.forEach(t => {
+                    let icon = (t.includes('낮') || getTimeWeight(t) < 1020) ? "🌞" : "🌙";
+                    optionsHtml += `<option value="${t}">${icon} ${t}</option>`;
+                });
+                timeSelect.innerHTML = optionsHtml;
+                if (availableTimes.length === 1) timeSelect.value = availableTimes[0];
+                else if (currentTimeVal && Array.from(timeSelect.options).some(opt => opt.value === currentTimeVal)) timeSelect.value = currentTimeVal;
+            } else {
+                optionsHtml += `<option value="14:00">🌞 14:00 (수동)</option><option value="18:00">🌙 18:00 (수동)</option><option value="20:00">🌙 20:00 (수동)</option>`;
+                timeSelect.innerHTML = optionsHtml;
+            }
+            handleTimeChange();
+        }
+
+        function handleTimeChange() {
+            const date = document.getElementById('perfDate').value, time = document.getElementById('perfTime').value;
+            if (!date || !time || !castSchedule[date] || !castSchedule[date][time]) return;
+            const [ro, ma, mc, ja] = castSchedule[date][time];
+            document.getElementById('castRosina').value = ro; 
+            document.getElementById('castMartha').value = ma; 
+            document.getElementById('castMarcello').value = mc;
+            document.getElementById('castJacopo').value = ja;
+        }
+
+        function createNewCard() { 
+            appData.cards.forEach(c => c.isActive = false); 
+            appData.cards.push({ id: Date.now(), stamps: 0, isActive: true }); 
+            saveData(); 
+        }
+
+        function switchCard(id) { appData.cards.forEach(c => c.isActive = (c.id === id)); saveData(); }
+        
+        function deleteCard(id, e) {
+            e.stopPropagation(); 
+            if (appData.cards.length <= 1) return alert('최소 하나의 도장판은 유지되어야 합니다.');
+            if (!confirm('이 도장판을 삭제하시겠습니까? 연결된 일지도 함께 삭제됩니다.')) return;
+            
+            appData.records = appData.records.filter(r => r.cardId !== id); 
+            appData.cards = appData.cards.filter(c => c.id !== id);
+            
+            if (appData.cards.length > 0 && !appData.cards.some(c => c.isActive)) {
+                appData.cards[appData.cards.length - 1].isActive = true;
+            }
+            saveData();
+        }
+        
+        function editRecord(id) {
+            const r = appData.records.find(rec => rec.id === id); if (!r) return;
+            const groupId = r.visitGroupId || r.id;
+            if (appData.records.filter(rec => (rec.visitGroupId || rec.id) === groupId).length > 1) return alert('분할 적립된 기록은 개별 수정이 불가합니다. 삭제 후 다시 등록해주세요.');
+            
+            document.getElementById('editRecordId').value = r.id; 
+            const cardSel = document.getElementById('editCardSelect');
+            cardSel.innerHTML = appData.cards.map((c, i) => `<option value="${c.id}">📁 도장판 #${i+1} (현재 ${c.stamps}개)</option>`).join('');
+            cardSel.value = r.cardId;
+            document.getElementById('editCardArea').classList.remove('hidden');
+            
+            document.getElementById('perfDate').value = r.date; handleDateChange();
+
+            const ts = document.getElementById('perfTime'), pureTime = r.time.replace(' (수동)', '');
+            if(!Array.from(ts.options).some(opt => opt.value === pureTime)) ts.innerHTML += `<option value="${pureTime}">${pureTime} (수동)</option>`;
+            ts.value = pureTime;
+            
+            document.getElementById('castRosina').value = r.rosina; 
+            document.getElementById('castMartha').value = r.martha; 
+            document.getElementById('castMarcello').value = r.marcello;
+            document.getElementById('castJacopo').value = r.jacopo;
+            
+            document.getElementById('seatInfo').value = (r.seat === '관극 예정') ? '' : r.seat; 
+            document.getElementById('stampsEarned').value = r.qty;
+            document.getElementById('couponType').value = r.couponType || (r.useCoupon ? '40' : '');
+
+            document.getElementById('formTitle').innerHTML = '<i class="fa-solid fa-pen-to-square text-amber-500"></i> 기록 수정 중...';
+            document.getElementById('submitBtn').innerText = '🔄 수정된 정보 저장'; document.getElementById('submitBtn').classList.replace('bg-slate-900', 'bg-amber-600'); document.getElementById('cancelEditBtn').classList.remove('hidden');
+        }
+
+        function cancelEdit() {
+            document.getElementById('editRecordId').value = ''; document.getElementById('recordForm').reset();
+            document.getElementById('editCardArea').classList.add('hidden');
+            const t = new Date();
+            let defaultDate = `${t.getFullYear()}-${String(t.getMonth() + 1).padStart(2, '0')}-${String(t.getDate()).padStart(2, '0')}`;
+            if (defaultDate < '2026-07-28') defaultDate = '2026-07-28';
+            if (defaultDate > '2026-10-18') defaultDate = '2026-10-18';
+            document.getElementById('perfDate').value = defaultDate; 
+            handleDateChange();
+            document.getElementById('formTitle').innerHTML = '<i class="fa-solid fa-pen text-prt-500"></i> 관극 기록';
+            document.getElementById('submitBtn').innerText = '💾 저장 및 적립'; document.getElementById('submitBtn').classList.replace('bg-amber-600', 'bg-slate-900'); document.getElementById('cancelEditBtn').classList.add('hidden');
+        }
+
+        function addOrUpdateRecord(e) {
+            e.preventDefault();
+            const editId = document.getElementById('editRecordId').value;
+            const date = document.getElementById('perfDate').value, time = document.getElementById('perfTime').value.replace(' (수동)', '');
+            const rosina = document.getElementById('castRosina').value, martha = document.getElementById('castMartha').value;
+            const marcello = document.getElementById('castMarcello').value, jacopo = document.getElementById('castJacopo').value;
+            let seat = document.getElementById('seatInfo').value.toUpperCase().replace(/\s+/g, '');
+            
+            const seatRegex = /^[BCD][1-7]-[1-9][0-9]?$/i;
+            if (!seat || seat === '관극예정') seat = '관극 예정'; else if (!seatRegex.test(seat)) return alert('유효하지 않은 좌석명입니다. (예: C1-14, B3-8)');
+            if(!time) return alert('회차를 선택해주세요.');
+
+            const targetQty = parseInt(document.getElementById('stampsEarned').value);
+            const couponType = document.getElementById('couponType').value;
+
+            if (editId) {
+                const rIndex = appData.records.findIndex(r => String(r.id) === String(editId));
+                if(rIndex > -1) {
+                    const r = appData.records[rIndex];
+                    if (r.couponType !== '40' && couponType === '40' && appData.coupons <= 0) return alert('재관람 할인권이 부족합니다.');
+                    if (r.couponType !== 'other' && couponType === 'other' && appData.otherCoupons <= 0) return alert('기타 할인권이 부족합니다.');
+                    
+                    r.cardId = Number(document.getElementById('editCardSelect').value);
+                    r.date = date; r.time = time; r.rosina = rosina; r.martha = martha; r.marcello = marcello; r.jacopo = jacopo; 
+                    r.seat = seat; r.qty = targetQty; 
+                    r.couponType = couponType; r.useCoupon = (couponType === '40');
+                }
+            } else {
+                if (couponType === '40' && appData.coupons <= 0) return alert('재관람 할인권이 부족합니다.');
+                if (couponType === 'other' && appData.otherCoupons <= 0) return alert('기타 할인권이 부족합니다.');
+
+                const visitGroupId = Date.now();
+                let remainingStamps = targetQty, firstChunk = true;
+                let activeCard = appData.cards.find(c => c.isActive);
+                if (!activeCard) { activeCard = { id: Date.now(), stamps: 0, isActive: true }; appData.cards.push(activeCard); }
+
+                while (remainingStamps > 0) {
+                    let spaceLeft = 7 - activeCard.stamps;
+                    if (spaceLeft === 0) {
+                        activeCard.isActive = false; activeCard = { id: Date.now() + Math.random(), stamps: 0, isActive: true }; appData.cards.push(activeCard); spaceLeft = 7;
+                    }
+                    let stampsToApply = Math.min(remainingStamps, spaceLeft);
+                    activeCard.stamps += stampsToApply;
+                    
+                    appData.records.push({ 
+                        id: Date.now() + Math.random(), visitGroupId, cardId: activeCard.id, date, time, rosina, martha, marcello, jacopo, seat, qty: stampsToApply, 
+                        couponType: firstChunk ? couponType : '', useCoupon: firstChunk ? (couponType === '40') : false 
+                    });
+                    remainingStamps -= stampsToApply; firstChunk = false;
+                }
+            }
+            saveData(); cancelEdit();
+        }
+
+        function changeMonth(delta) {
+            currentCalDate.setMonth(currentCalDate.getMonth() + delta);
+            renderCalendar();
+        }
+
+        function showScheduleDetail(date, time) {
+            const cast = castSchedule[date][time];
+            const records = appData.records.filter(r => r.date === date && r.time === time);
+            const evt = eventsByDate[date];
+            
+            let html = `
+                <div class="mb-4 text-center">
+                    <h3 class="text-xl font-bold text-slate-800 tracking-tight">${date} <span class="text-prt-500 text-lg">${time}</span></h3>
+                    ${evt ? `<div class="inline-block ${eventColorMap[evt] ? eventColorMap[evt].replace('border-y', '') : 'bg-prt-100 text-prt-800'} text-xs px-2 py-0.5 rounded-full mt-2 font-bold shadow-sm border">${evt}</div>` : ''}
+                </div>
+                <div class="grid grid-cols-4 gap-1 mb-5 bg-slate-50 p-3 rounded-xl border border-slate-200">
+                    <div class="text-center">
+                        <div class="text-[10px] text-slate-500 font-medium mb-1">로지나</div>
+                        <div class="font-bold text-slate-800 text-[13px]">${cast[0]}</div>
+                    </div>
+                    <div class="text-center border-l border-slate-200">
+                        <div class="text-[10px] text-slate-500 font-medium mb-1">마르타</div>
+                        <div class="font-bold text-slate-800 text-[13px]">${cast[1]}</div>
+                    </div>
+                    <div class="text-center border-l border-slate-200">
+                        <div class="text-[10px] text-slate-500 font-medium mb-1">마르첼로</div>
+                        <div class="font-bold text-slate-800 text-[13px]">${cast[2]}</div>
+                    </div>
+                    <div class="text-center border-l border-slate-200">
+                        <div class="text-[10px] text-slate-500 font-medium mb-1">야코포</div>
+                        <div class="font-bold text-slate-800 text-[13px]">${cast[3]}</div>
+                    </div>
+                </div>
+            `;
+
+            if (records.length > 0) {
+                html += `<h4 class="text-xs font-bold text-prt-600 mb-2 border-b border-prt-100 pb-1.5 flex items-center gap-1"><i class="fa-solid fa-ticket"></i> 나의 예매/관극 정보</h4>`;
+                records.forEach((r, idx) => {
+                    html += `
+                        <div class="flex justify-between items-center bg-white p-3 rounded-lg border border-prt-200 mb-2 shadow-sm">
+                            <div class="flex items-center gap-2">
+                                <span class="bg-prt-100 text-prt-800 text-[10px] px-2 py-0.5 rounded font-bold">좌석</span>
+                                <span class="text-sm font-bold text-slate-800">${r.seat}</span>
+                            </div>
+                            <div class="text-[10px]">
+                                ${r.couponType === '40' || r.useCoupon ? '<span class="bg-amber-100 text-amber-800 px-2 py-1 rounded font-bold">재관람 할인 O</span>' : r.couponType === 'other' ? '<span class="bg-purple-100 text-purple-800 px-2 py-1 rounded font-bold">기타 할인 O</span>' : '<span class="bg-slate-100 text-slate-500 px-2 py-1 rounded font-bold">할인 미사용</span>'}
+                            </div>
+                        </div>
+                    `;
+                });
+            } else {
+                html += `
+                <div class="text-center text-slate-400 text-xs py-3 mb-2 bg-slate-50 rounded-lg border border-slate-100">
+                    <i class="fa-solid fa-folder-open mb-1 text-slate-300"></i><br>등록된 관극 기록이 없습니다.
+                </div>`;
+            }
+
+            let cardOptions = appData.cards.map((c, i) => {
+                let isSelected = c.isActive ? 'selected' : '';
+                return `<option value="${c.id}" ${isSelected}>📁 도장판 #${i+1} (현재 ${c.stamps}개 / 최대 7개)</option>`;
+            }).join('');
+
+            html += `
+                <div class="mt-4 border-t border-slate-200 pt-4">
+                    <h4 class="text-xs font-bold text-slate-700 mb-2 flex items-center gap-1.5"><i class="fa-solid fa-bolt text-prt-500"></i> 빠른 관극 기록 추가</h4>
+                    <div class="space-y-2">
+                        <select id="quickCardId" class="w-full border border-slate-200 p-2 rounded-lg text-xs focus:outline-none focus:border-prt-500 bg-slate-50 font-medium">
+                            ${cardOptions}
+                        </select>
+                        <input type="text" id="quickSeat" placeholder="좌석 정보 (예: C1-14, 미입력 시 '관극 예정')" class="w-full border border-slate-200 p-2 rounded-lg text-xs focus:outline-none focus:border-prt-500 uppercase">
+                        
+                        <div class="flex gap-2">
+                            <select id="quickStamps" class="flex-1 border border-slate-200 p-2 rounded-lg text-xs focus:outline-none focus:border-prt-500">
+                                <option value="1">도장 1개 적립</option>
+                                <option value="2">도장 2개 적립</option>
+                                <option value="3">도장 3개 적립</option>
+                            </select>
+                            <select id="quickCouponType" onchange="handleCouponChange(this)" class="flex-1 border border-slate-200 p-2 rounded-lg text-xs focus:outline-none focus:border-prt-500 bg-slate-50">
+                                <option value="">할인 미사용</option>
+                                <option value="40">재관람 할인권</option>
+                                <option value="other">기타 할인권</option>
+                            </select>
+                        </div>
+                        
+                        <button onclick="quickAddRecord('${date}', '${time}', '${cast[0]}', '${cast[1]}', '${cast[2]}', '${cast[3]}')" class="w-full bg-slate-800 text-white py-2 rounded-lg text-xs font-bold hover:bg-slate-900 transition mt-1">
+                            기록 저장하고 타임라인 보기
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('scheduleDetailContent').innerHTML = html;
+            document.getElementById('scheduleDetailModal').classList.add('active');
+        }
+
+        function closeScheduleDetailModal() {
+            document.getElementById('scheduleDetailModal').classList.remove('active');
+        }
+
+        function quickAddRecord(date, time, rosina, martha, marcello, jacopo) {
+            let seat = document.getElementById('quickSeat').value.toUpperCase().replace(/\s+/g, '');
+            const seatRegex = /^[BCD][1-7]-[1-9][0-9]?$/i;
+            if (!seat) seat = '관극 예정'; else if (!seatRegex.test(seat)) return alert('유효하지 않은 좌석명입니다. (예: C1-14, B3-8)');
+            
+            const qty = parseInt(document.getElementById('quickStamps').value);
+            const couponType = document.getElementById('quickCouponType').value;
+            
+            const selectedCardId = Number(document.getElementById('quickCardId').value);
+            let activeCard = appData.cards.find(c => c.id === selectedCardId);
+            if (!activeCard) return alert('도장판을 선택해주세요.');
+            
+            appData.cards.forEach(c => c.isActive = (c.id === selectedCardId));
+
+            if (couponType === '40' && appData.coupons <= 0) return alert('재관람 할인권이 부족합니다.');
+            if (couponType === 'other' && appData.otherCoupons <= 0) return alert('기타 할인권이 부족합니다.');
+
+            const visitGroupId = Date.now();
+            let remainingStamps = qty, firstChunk = true;
+            
+            while (remainingStamps > 0) {
+                let spaceLeft = 7 - activeCard.stamps;
+                if (spaceLeft === 0) { activeCard.isActive = false; activeCard = { id: Date.now() + Math.random(), stamps: 0, isActive: true }; appData.cards.push(activeCard); spaceLeft = 7; }
+                let stampsToApply = Math.min(remainingStamps, spaceLeft);
+                activeCard.stamps += stampsToApply;
+                
+                appData.records.push({ 
+                    id: Date.now() + Math.random(), visitGroupId, cardId: activeCard.id, date, time, rosina, martha, marcello, jacopo, seat, qty: stampsToApply, 
+                    couponType: firstChunk ? couponType : '', useCoupon: firstChunk ? (couponType === '40') : false 
+                });
+                remainingStamps -= stampsToApply; firstChunk = false;
+            }
+            saveData(); closeScheduleDetailModal(); switchTab('logSheet');
+        }
+
+        function deleteRecord(id) {
+            const r = appData.records.find(rec => rec.id === id); if (!r) return;
+            const groupId = r.visitGroupId || r.id;
+            if (!confirm('관극 일지를 삭제하시겠습니까?')) return;
+            
+            appData.records = appData.records.filter(rec => (rec.visitGroupId || rec.id) !== groupId); 
+            saveData(); 
+        }
+
+        function generateHeatmap() {
+            const seatCounts = {}, uniqueVisits = [], seenGroups = new Set();
+            appData.records.forEach(r => { const gid = r.visitGroupId || r.id; if(!seenGroups.has(gid)) { seenGroups.add(gid); uniqueVisits.push(r); } });
+            uniqueVisits.forEach(r => seatCounts[r.seat] = (seatCounts[r.seat] || 0) + 1);
+
+            const getColorClass = (c) => c===0?'bg-slate-100 text-slate-300 border border-slate-200':c===1?'bg-red-200 text-red-900 border border-red-300':c===2?'bg-yellow-200 text-yellow-900 border border-yellow-300':c===3?'bg-green-200 text-green-900 border border-green-300':c===4?'bg-blue-200 text-blue-900 border border-blue-300':'bg-prt-500 text-white font-bold border border-prt-600 shadow-sm';
+            
+            const b = (id, l) => `<div class="w-[12px] h-[12px] sm:w-[15px] sm:h-[15px] md:w-[20px] md:h-[20px] lg:w-[24px] lg:h-[24px] text-[6px] sm:text-[7px] md:text-[9px] lg:text-[11px] rounded-[2px] md:rounded flex items-center justify-center transition-all flex-shrink-0 ${getColorClass(seatCounts[id]||0)}" title="${id}석 (${seatCounts[id]||0}회)">${l}</div>`;
+
+            // B 구역 (좌측 사선)
+            const bRows = [[8,9,10], [7,8,9,10,11], [6,7,8,9,10,11], [5,6,7,8,9,10], [4,5,6,7,8,9,10], [3,4,5,6,7,8], [1,2,3,4,5,6]];
+            let bHtml = `<div class="flex flex-col items-end gap-[2px] md:gap-[3px] mt-8 md:mt-12 lg:mt-16 mr-2 sm:mr-6 md:mr-10" style="transform: rotate(-25deg); transform-origin: center right;">`;
+            bHtml += `<div class="text-sm md:text-base font-bold text-slate-800 mb-2 md:mb-4 mr-10 md:mr-16">B</div>`;
+            bRows.forEach((row, idx) => {
+                let rowHtml = `<div class="flex items-center gap-[2px] md:gap-[3px]"><span class="text-[9px] md:text-[11px] text-slate-400 font-bold w-4 text-right mr-1.5 md:mr-2">${idx+1}</span>`;
+                row.forEach(seatNum => rowHtml += b(`B${idx+1}-${seatNum}`, seatNum));
+                rowHtml += `</div>`;
+                bHtml += rowHtml;
+            });
+            bHtml += `</div>`;
+
+            // C 구역 (중앙 직진)
+            const cRows = [14, 15, 16, 17, 18, 21];
+            let cHtml = `<div class="flex flex-col items-center gap-[2px] md:gap-[3px] relative z-10">`;
+            cHtml += `<div class="text-sm md:text-base font-bold text-slate-800 mb-2 md:mb-4">C</div>`;
+            cRows.forEach((count, idx) => {
+                let rowHtml = `<div class="flex items-center gap-[2px] md:gap-[3px]"><span class="text-[9px] md:text-[11px] text-slate-400 font-bold w-4 text-right mr-1.5 md:mr-2">${idx+1}</span>`;
+                for(let i=1; i<=count; i++) rowHtml += b(`C${idx+1}-${i}`, i);
+                rowHtml += `<span class="text-[9px] md:text-[11px] text-slate-400 font-bold w-4 text-left ml-1.5 md:ml-2">${idx+1}</span></div>`;
+                cHtml += rowHtml;
+            });
+            cHtml += `</div>`;
+
+            // D 구역 (우측 사선)
+            const dRows = [8, 9, 10, 8, 7, 6];
+            let dHtml = `<div class="flex flex-col items-start gap-[2px] md:gap-[3px] mt-8 md:mt-12 lg:mt-16 ml-2 sm:ml-6 md:ml-10" style="transform: rotate(25deg); transform-origin: center left;">`;
+            dHtml += `<div class="text-sm md:text-base font-bold text-slate-800 mb-2 md:mb-4 ml-10 md:ml-16">D</div>`;
+            dRows.forEach((count, idx) => {
+                let rowHtml = `<div class="flex items-center gap-[2px] md:gap-[3px]">`;
+                for(let i=1; i<=count; i++) rowHtml += b(`D${idx+1}-${i}`, i);
+                rowHtml += `<span class="text-[9px] md:text-[11px] text-slate-400 font-bold w-4 text-left ml-1.5 md:ml-2">${idx+1}</span></div>`;
+                dHtml += rowHtml;
+            });
+            dHtml += `</div>`;
+
+            // 전체 컨테이너에 배치
+            document.getElementById('seating-grid').innerHTML = `<div class="flex items-start justify-center min-w-[700px] md:min-w-max pb-8 pt-4 w-full px-8">${bHtml}${cHtml}${dHtml}</div>`;
+        }
+
+        function renderCalendar() {
+            const year = currentCalDate.getFullYear();
+            const month = currentCalDate.getMonth();
+            document.getElementById('calendarMonthLabel').innerText = `${year}년 ${month + 1}월`;
+
+            const firstDayStr = new Date(year, month, 1).getDay();
+            const emptyCells = firstDayStr === 0 ? 6 : firstDayStr - 1;
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+            let html = `
+                <div class="bg-slate-50 text-center py-1 md:py-2 text-[10px] md:text-xs font-bold text-slate-600 border-b border-slate-200">월</div>
+                <div class="bg-slate-50 text-center py-1 md:py-2 text-[10px] md:text-xs font-bold text-slate-600 border-b border-slate-200">화</div>
+                <div class="bg-slate-50 text-center py-1 md:py-2 text-[10px] md:text-xs font-bold text-slate-600 border-b border-slate-200">수</div>
+                <div class="bg-slate-50 text-center py-1 md:py-2 text-[10px] md:text-xs font-bold text-slate-600 border-b border-slate-200">목</div>
+                <div class="bg-slate-50 text-center py-1 md:py-2 text-[10px] md:text-xs font-bold text-slate-600 border-b border-slate-200">금</div>
+                <div class="bg-slate-50 text-center py-1 md:py-2 text-[10px] md:text-xs font-bold text-blue-500 border-b border-slate-200">토</div>
+                <div class="bg-slate-50 text-center py-1 md:py-2 text-[10px] md:text-xs font-bold text-rose-500 border-b border-slate-200">일</div>
+            `;
+
+            for(let i=0; i<emptyCells; i++) {
+                html += `<div class="bg-white min-h-[70px] md:min-h-[120px]"></div>`;
+            }
+
+            let spans = [];
+            let currentSpan = [];
+            for (let d = 1; d <= daysInMonth; d++) {
+                const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+                const ev = eventsByDate[dateStr];
+                const dayOfWeek = (emptyCells + d - 1) % 7;
+                
+                if (ev) {
+                    if (currentSpan.length === 0 || currentSpan[0].ev === ev) {
+                        currentSpan.push({d, ev, dateStr});
+                    } else {
+                        spans.push(currentSpan);
+                        currentSpan = [{d, ev, dateStr}];
+                    }
+                    
+                    if (!eventColorMap[ev]) {
+                        eventColorMap[ev] = ribbonColors[colorIndex % ribbonColors.length];
+                        colorIndex++;
+                    }
+
+                    if (dayOfWeek === 6) {
+                        spans.push(currentSpan);
+                        currentSpan = [];
+                    }
+                } else {
+                    if (currentSpan.length > 0) spans.push(currentSpan);
+                    currentSpan = [];
+                }
+            }
+            if (currentSpan.length > 0) spans.push(currentSpan);
+
+            const spanStartMap = {};
+            spans.forEach(span => {
+                if (span.length > 0) {
+                    spanStartMap[span[0].dateStr] = span.length;
+                }
+            });
+
+            const realToday = new Date();
+
+            for(let d=1; d<=daysInMonth; d++) {
+                const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+                const dayOfWeek = (emptyCells + d - 1) % 7;
+                let dayColor = ''; if (dayOfWeek === 5) dayColor = 'text-blue-500'; else if (dayOfWeek === 6) dayColor = 'text-rose-500'; 
+
+                const isTodayActive = (realToday.getMonth() === month && realToday.getDate() === d);
+                
+                let dayNumHtml = `<div class="h-5 md:h-6 mt-1 ml-1 md:ml-1.5 flex items-center">` +
+                    (isTodayActive 
+                    ? `<span class="bg-slate-900 text-white text-[9px] md:text-[11px] font-bold rounded-full w-4 h-4 md:w-5 md:h-5 flex items-center justify-center shadow-sm flex-shrink-0">${d}</span>`
+                    : `<span class="text-[9px] md:text-[11px] font-semibold text-slate-700 px-1 ${dayColor}">${d}</span>`) +
+                    `</div>`;
+
+                let cellZ = spanStartMap[dateStr] ? 'z-20' : 'z-0';
+
+                let dayHtml = `<div class="bg-white min-h-[70px] md:min-h-[120px] pb-1 md:pb-2 flex flex-col relative group min-w-0 ${cellZ}">
+                    ${dayNumHtml}`;
+
+                if (eventsByDate[dateStr]) {
+                    const eventText = eventsByDate[dateStr];
+                    const pD = new Date(year, month, d-1), nD = new Date(year, month, d+1);
+                    const prevStr = `${pD.getFullYear()}-${String(pD.getMonth()+1).padStart(2,'0')}-${String(pD.getDate()).padStart(2,'0')}`;
+                    const nextStr = `${nD.getFullYear()}-${String(nD.getMonth()+1).padStart(2,'0')}-${String(nD.getDate()).padStart(2,'0')}`;
+                    const isFirstDayOfWeek = dayOfWeek === 0, isLastDayOfWeek = dayOfWeek === 6;
+                    
+                    const connLeft = eventsByDate[prevStr] === eventText && !isFirstDayOfWeek;
+                    const connRight = eventsByDate[nextStr] === eventText && !isLastDayOfWeek; 
+                    
+                    let rbCls = `${eventColorMap[eventText]} py-0.5 md:py-1 z-10 border-y relative h-[16px] md:h-[22px] flex items-center justify-center `;
+                    if (connLeft && connRight) rbCls += "-ml-[1px] -mr-[1px] w-[calc(100%+2px)] border-x-0 rounded-none"; 
+                    else if (connLeft) rbCls += "-ml-[1px] mr-0.5 rounded-r rounded-l-none border-l-0 w-[calc(100%+1px)]";
+                    else if (connRight) rbCls += "ml-0.5 -mr-[1px] rounded-l rounded-r-none border-r-0 w-[calc(100%+1px)]";
+                    else rbCls += "mx-1 rounded border w-[calc(100%-8px)]";
+
+                    let displayTxt = '';
+                    
+                    if (spanStartMap[dateStr]) {
+                        const spanLen = spanStartMap[dateStr];
+                        displayTxt = `
+                            <div class="absolute top-0 left-0 h-full flex items-center justify-center z-30 pointer-events-none" style="width: calc(${spanLen * 100}% + ${spanLen - 1}px);">
+                                <span class="px-1 text-[7.5px] md:text-[10px] tracking-tight font-bold whitespace-nowrap text-slate-800 drop-shadow-sm">${eventText}</span>
+                            </div>
+                        `;
+                    }
+                    
+                    dayHtml += `<div class="w-full relative mt-1">${displayTxt}<div class="${rbCls}" title="${eventText}"></div></div>`;
+                } else {
+                    dayHtml += `<div class="h-[18px] md:h-[26px] mt-1"></div>`;
+                }
+
+                if (castSchedule[dateStr]) {
+                    let times = Object.keys(castSchedule[dateStr]).sort((a,b) => getTimeWeight(a) - getTimeWeight(b));
+                    dayHtml += `<div class="mt-0.5 md:mt-1 flex flex-col gap-0.5 md:gap-1 px-0.5 md:px-1 w-full box-border overflow-hidden">`;
+                    times.forEach(t => {
+                        const cast = castSchedule[dateStr][t];
+                        let isMatch = true;
+                        if (calFilterRo && cast[0] !== calFilterRo) isMatch = false;
+                        if (calFilterMa && cast[1] !== calFilterMa) isMatch = false;
+                        if (calFilterMc && cast[2] !== calFilterMc) isMatch = false;
+                        if (calFilterJa && cast[3] !== calFilterJa) isMatch = false;
+
+                        const isBooked = appData.records.some(r => r.date === dateStr && r.time === t);
+                        let btnClass = isBooked ? "bg-prt-600 text-white font-bold shadow-md ring-1 ring-prt-700 hover:bg-prt-700" : "bg-slate-50 border border-slate-200 text-slate-600 hover:bg-slate-100 font-medium";
+                        
+                        if (!isMatch) btnClass += " opacity-25 grayscale";
+
+                        let icon = (t.includes('낮') || getTimeWeight(t) < 1020) ? "🌞" : "🌙";
+                        
+                        dayHtml += `<button onclick="showScheduleDetail('${dateStr}', '${t}')" class="text-[8.5px] md:text-[10px] w-full px-0 py-1 rounded transition ${btnClass} flex flex-row items-center justify-center gap-[1.5px] leading-none whitespace-nowrap">
+                            <span class="flex-shrink-0">${icon}</span><span class="flex-shrink-0 mt-[1px] tracking-tighter">${t}</span>
+                        </button>`;
+                    });
+                    dayHtml += `</div>`;
+                }
+                dayHtml += `</div>`;
+                html += dayHtml;
+            }
+            
+            const totalCells = emptyCells + daysInMonth;
+            const remaining = 7 - (totalCells % 7);
+            if (remaining < 7) {
+                for(let i=0; i<remaining; i++) html += `<div class="bg-white min-h-[70px] md:min-h-[120px]"></div>`;
+            }
+            document.getElementById('calendarGrid').innerHTML = html;
+        }
+
+        function calculateStatsSheet() {
+            const totalRo = {'임예진':0,'성민재':0,'박소현':0}, totalMa = {'송영미':0,'김수':0,'김단이':0}, totalMc = {'김이담':0,'박선영':0,'정백선':0}, totalJa = {'윤지성':0,'도유현':0,'조은성':0}, totalPairs = {};
+            Object.values(castSchedule).forEach(day => Object.values(day).forEach(cast => {
+                const [ro, ma, mc, ja] = cast;
+                if (totalRo[ro]!==undefined) totalRo[ro]++; if (totalMa[ma]!==undefined) totalMa[ma]++; if (totalMc[mc]!==undefined) totalMc[mc]++; if (totalJa[ja]!==undefined) totalJa[ja]++;
+                totalPairs[`${ro}, ${ma}, ${mc}, ${ja}`] = (totalPairs[`${ro}, ${ma}, ${mc}, ${ja}`]||0)+1;
+            }));
+
+            const castRo = {'임예진':0,'성민재':0,'박소현':0}, castMa = {'송영미':0,'김수':0,'김단이':0}, castMc = {'김이담':0,'박선영':0,'정백선':0}, castJa = {'윤지성':0,'도유현':0,'조은성':0}, pairs = {};
+            const unique = [], seen = new Set();
+            appData.records.forEach(r => { const gid = r.visitGroupId || r.id; if(!seen.has(gid)){ seen.add(gid); unique.push(r); }});
+            unique.forEach(r => {
+                if(castRo[r.rosina]!==undefined) castRo[r.rosina]++; if(castMa[r.martha]!==undefined) castMa[r.martha]++; if(castMc[r.marcello]!==undefined) castMc[r.marcello]++; if(castJa[r.jacopo]!==undefined) castJa[r.jacopo]++;
+                pairs[`${r.rosina}, ${r.martha}, ${r.marcello}, ${r.jacopo}`] = (pairs[`${r.rosina}, ${r.martha}, ${r.marcello}, ${r.jacopo}`]||0)+1;
+            });
+
+            globalStats = { totalRo, castRo, totalMa, castMa, totalMc, castMc, totalJa, castJa, totalPairs, pairs, totalVisits: unique.length };
+
+            const drawList = (tId, attD, totD) => {
+                const dom = document.getElementById(tId); dom.innerHTML = '';
+                const totC = Object.values(totD).reduce((a,b)=>a+b,0), attS = Object.values(attD).reduce((a,b)=>a+b,0), dispT = totC>0?totC:attS;
+                if(document.getElementById(tId.replace('report','total')+'Count')) document.getElementById(tId.replace('report','total')+'Count').innerText = `총 ${dispT}회`;
+                Object.keys(attD).forEach(name => {
+                    const att = attD[name]||0, tot = totD[name]||0, dTot = tot>0?tot:att;
+                    dom.innerHTML += `<div class="flex justify-between items-center bg-white border border-slate-200/80 p-1.5 rounded-lg text-xs"><span class="font-medium text-slate-700">${name}</span><span class="bg-prt-50 text-prt-700 px-1.5 py-0.5 rounded font-bold">${att}회 / ${dTot}회</span></div>`;
+                });
+            };
+            drawList('reportRosina', castRo, totalRo); drawList('reportMartha', castMa, totalMa); drawList('reportMarcello', castMc, totalMc); drawList('reportJacopo', castJa, totalJa);
+
+            const rPair = document.getElementById('reportPair'); rPair.innerHTML = '';
+            const allPKeys = new Set([...Object.keys(totalPairs), ...Object.keys(pairs)]);
+            let tPSum = Object.values(totalPairs).reduce((a,b)=>a+b,0), aPSum = Object.values(pairs).reduce((a,b)=>a+b,0);
+            document.getElementById('totalPairCount').innerText = `총 ${tPSum>0?tPSum:aPSum}회`;
+
+            const pList = Array.from(allPKeys).map(k => ({ name: k, att: pairs[k]||0, tot: totalPairs[k]||pairs[k]||0 })).sort((a,b) => b.att-a.att || b.tot-a.tot);
+            if(pList.length === 0) rPair.innerHTML = '<p class="text-xs text-slate-400 text-center py-4 col-span-full">데이터 없음</p>';
+            else pList.forEach(p => rPair.innerHTML += `<div class="flex justify-between items-center bg-white border border-slate-200/80 p-1.5 rounded-lg text-[10px]"><span class="font-medium text-slate-700 whitespace-normal leading-snug break-keep">${p.name}</span><span class="bg-prt-50 text-prt-700 px-1.5 py-0.5 rounded font-bold ml-1 flex-shrink-0">${p.att}회 / ${p.tot}회</span></div>`);
+        }
+
+        async function openPreviewModal() {
+            const modal = document.getElementById('imagePreviewModal');
+            const previewImg = document.getElementById('previewImage');
+            const loadingUI = document.getElementById('previewLoading');
+            const downloadBtn = document.getElementById('finalDownloadBtn');
+            
+            modal.classList.add('active');
+            previewImg.classList.add('hidden');
+            loadingUI.classList.remove('hidden');
+            downloadBtn.disabled = true;
+
+            await renderCanvasForPreview();
+        }
+
+        function closePreviewModal() { document.getElementById('imagePreviewModal').classList.remove('active'); }
+
+        function downloadRenderedImage() {
+            if (!generatedImageUrl) return;
+            const link = document.createElement('a');
+            link.download = `소년의초상_정산_${new Date().toISOString().slice(0,10)}.png`;
+            link.href = generatedImageUrl;
+            document.body.appendChild(link); link.click(); document.body.removeChild(link);
+            closePreviewModal();
+        }
+
+        async function renderCanvasForPreview() {
+            const container = document.getElementById('export-container');
+            container.style.height = 'auto';
+            
+            const buildActorCard = (role, name, rot, zIndex) => {
+                const imgPath = imagePaths.actors[name];
+                const safeImgPath = encodeURI(imgPath);
+
+                let att = 0, tot = 0;
+                if(role === 'rosina') { att = globalStats.castRo[name]||0; tot = globalStats.totalRo[name]||0; }
+                if(role === 'martha') { att = globalStats.castMa[name]||0; tot = globalStats.totalMa[name]||0; }
+                if(role === 'marcello') { att = globalStats.castMc[name]||0; tot = globalStats.totalMc[name]||0; }
+                if(role === 'jacopo') { att = globalStats.castJa[name]||0; tot = globalStats.totalJa[name]||0; }
+                const dTot = tot > 0 ? tot : att; 
+
+                return `
+                    <div style="position: relative; z-index: ${zIndex}; transform: rotate(${rot}deg); background: #eeebe5; padding: 5px; border-radius: 2px; box-shadow: 3px 5px 15px rgba(0,0,0,0.5); display: flex; flex-direction: column; align-items: center; border: 1px solid #c8c0b5;">
+                        <div style="width: 145px; height: 200px; overflow: hidden; position: relative; border: 1px solid #9c9489;">
+                            <img src="${safeImgPath}" style="width: 100%; height: 100%; object-fit: cover; filter: sepia(30%) grayscale(40%) contrast(110%) brightness(0.95);" onerror="this.style.display='none'">
+                            
+                            <div style="position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(to top, rgba(0,0,0,1) 0%, rgba(0,0,0,0.9) 35%, rgba(0,0,0,0) 75%); padding: 50px 5px 8px 5px; display: flex; flex-direction: column; align-items: center; line-height: 1.2;">
+                                <span style="font-family: 'Baekbeom', sans-serif; font-size: 16px; font-weight: bold; color: #ffffff; letter-spacing: 1.5px; text-shadow: 1px 1px 2px rgba(0,0,0,0.8);">${name}</span>
+                                <span style="font-family: 'Baekbeom', sans-serif; font-size: 12px; font-weight: bold; color: #d1dfdb; margin-top: 3px; text-shadow: 1px 1px 2px rgba(0,0,0,0.8);">${att} / ${dTot}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            };
+
+            const safePoster = encodeURI(imagePaths.poster);
+            const safeTex2 = encodeURI(imagePaths.tex2);
+            const safeTex3 = encodeURI(imagePaths.tex3);
+            const safeTex4 = encodeURI(imagePaths.tex4);
+            const safeDeco = encodeURI(imagePaths.deco);
+            const safeLogo = encodeURI(imagePaths.prtLogo);
+
+            container.innerHTML = `
+                <div style="position: absolute; inset: 0; background-color: #1a1e1d;"></div>
+                <div style="position: absolute; inset: 0; background-image: url('${safePoster}'); background-size: cover; background-position: center; opacity: 0.35; filter: grayscale(30%); z-index: 1;"></div>
+                <div style="position: absolute; inset: 0; background-image: url('${safeTex4}'); background-size: cover; background-position: center; opacity: 0.2; z-index: 2;"></div>
+                
+                <div style="position: relative; z-index: 10; display: flex; align-items: center; padding: 50px; gap: 40px; box-sizing: border-box; width: 100%;">
+                    
+                    <div style="flex: 1.3; position: relative;">
+                        <div style="position: absolute; top: -20px; left: -20px; right: -20px; bottom: -20px; background-image: url('${safeTex3}'); background-size: cover; opacity: 0.7; transform: rotate(-1.5deg); box-shadow: 2px 4px 20px rgba(0,0,0,0.7); filter: sepia(10%) grayscale(30%); z-index: 1;"></div>
+
+                        <div style="position: relative; z-index: 10; display: flex; flex-direction: column; gap: 20px; padding: 25px;">
+                            <div style="display: flex; gap: 15px; justify-content: center;">
+                                ${buildActorCard('rosina', '임예진', -2, 12)}
+                                ${buildActorCard('rosina', '성민재', 1, 11)}
+                                ${buildActorCard('rosina', '박소현', -1, 13)}
+                            </div>
+                            <div style="display: flex; gap: 15px; justify-content: center;">
+                                ${buildActorCard('martha', '송영미', 2, 15)}
+                                ${buildActorCard('martha', '김수', -1, 14)}
+                                ${buildActorCard('martha', '김단이', 1, 16)}
+                            </div>
+                            <div style="display: flex; gap: 15px; justify-content: center;">
+                                ${buildActorCard('marcello', '김이담', -1, 11)}
+                                ${buildActorCard('marcello', '박선영', 2, 12)}
+                                ${buildActorCard('marcello', '정백선', -2, 10)}
+                            </div>
+                            <div style="display: flex; gap: 15px; justify-content: center;">
+                                ${buildActorCard('jacopo', '윤지성', 1, 13)}
+                                ${buildActorCard('jacopo', '도유현', -1, 14)}
+                                ${buildActorCard('jacopo', '조은성', 2, 15)}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="flex: 0.95; display: flex; flex-direction: column; position: relative; z-index: 20;">
+                        <div style="background-color: #f0f2f1; border-radius: 2px; padding: 35px 25px; box-shadow: inset 0 0 60px rgba(87, 122, 112, 0.2), 8px 12px 30px rgba(0,0,0,0.8); position: relative; overflow: hidden; flex-grow: 1; display: flex; flex-direction: column; border: 1px solid #c5d1cc; transform: rotate(1deg);">
+                            
+                            <div style="position: absolute; inset: 0; background-image: url('${safeTex2}'); background-size: cover; opacity: 0.15; pointer-events: none; z-index: 0;"></div>
+
+                            <div style="position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding-bottom: 15px; margin-bottom: 25px;">
+                                <img src="${safeLogo}" style="height: 100px; object-fit: contain; opacity: 0.9;" onerror="this.style.display='none'" alt="소년의 초상">
+                                <!-- 로고 이미지가 없을 경우를 대비한 텍스트 렌더링 -->
+                                <h1 style="font-family: 'Baekbeom', sans-serif; font-size: 32px; font-weight: bold; color: #364d47; margin-top: 10px; display: ${imagePaths.prtLogo === './logo.png' ? 'block' : 'none'};">소년의 초상</h1>
+                            </div>
+
+                            <div style="position: relative; z-index: 1; text-align: center; font-size: 22px; color: #364d47; margin-bottom: 25px;">
+                                총 <span style="color: #577a70; font-weight: bold; font-size: 40px; margin: 0 6px;">${globalStats.totalVisits}</span> 회
+                            </div>
+
+                            <div id="exportSeatingGrid" style="display:flex; flex-direction:column; gap: 5px; width: 100%; align-items: center; justify-content: center; position: relative; z-index: 1;"></div>
+                            
+                            <div style="position: relative; z-index: 1; display: flex; justify-content: center; gap: 12px; margin-top: 35px; font-size: 14px; color: #436058; font-weight: bold;">
+                                <div style="display: flex; align-items: center;"><div style="width:13px; height:13px; background: rgba(250,245,235,0.9); border:1px solid #a39b8d; margin-right: 5px;"></div><span style="padding-bottom: 3px;">0</span></div>
+                                <div style="display: flex; align-items: center;"><div style="width:13px; height:13px; background:#fecaca; border:1px solid #f87171; margin-right: 5px;"></div><span style="padding-bottom: 3px;">1</span></div>
+                                <div style="display: flex; align-items: center;"><div style="width:13px; height:13px; background:#fef08a; border:1px solid #facc15; margin-right: 5px;"></div><span style="padding-bottom: 3px;">2</span></div>
+                                <div style="display: flex; align-items: center;"><div style="width:13px; height:13px; background:#bbf7d0; border:1px solid #4ade80; margin-right: 5px;"></div><span style="padding-bottom: 3px;">3</span></div>
+                                <div style="display: flex; align-items: center;"><div style="width:13px; height:13px; background:#bfdbfe; border:1px solid #60a5fa; margin-right: 5px;"></div><span style="padding-bottom: 3px;">4</span></div>
+                                <div style="display: flex; align-items: center;"><div style="width:13px; height:13px; background:#577a70; border:1px solid #364d47; margin-right: 5px;"></div><span style="padding-bottom: 3px;">5+</span></div>
+                            </div>
+                        </div>
+
+                        <img src="${safeDeco}" style="position: absolute; bottom: -40px; right: -40px; width: 250px; mix-blend-mode: multiply; opacity: 0.6; transform: rotate(-15deg); z-index: 30;" onerror="this.style.display='none'" alt="장식">
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('exportSeatingGrid').innerHTML = getInlineStyleHeatmapHTML();
+
+            await new Promise(r => setTimeout(r, 800));
+
+            try {
+                const canvas = await html2canvas(container, { scale: 2, useCORS: true, backgroundColor: '#1a1a1a', logging: false });
+                generatedImageUrl = canvas.toDataURL('image/png');
+                document.getElementById('previewLoading').classList.add('hidden');
+                document.getElementById('previewImage').src = generatedImageUrl;
+                document.getElementById('previewImage').classList.remove('hidden');
+                document.getElementById('finalDownloadBtn').disabled = false;
+            } catch (error) {
+                console.error(error); closePreviewModal(); alert('이미지 생성 중 오류가 발생했습니다.');
+            }
+        }
+
+        function getInlineStyleHeatmapHTML() {
+            const seatCounts = {}, uniqueVisits = [], seenGroups = new Set();
+            appData.records.forEach(r => { const gid = r.visitGroupId || r.id; if(!seenGroups.has(gid)) { seenGroups.add(gid); uniqueVisits.push(r); } });
+            uniqueVisits.forEach(r => seatCounts[r.seat] = (seatCounts[r.seat] || 0) + 1);
+
+            const getStyle = (c) => {
+                if (c === 0) return 'background: rgba(250,245,235,0.95); border: 1px solid #c5d1cc; color: #77958b;';
+                if (c === 1) return 'background: rgba(254,202,202,0.95); border: 1px solid #f87171; color: #7f1d1d;';
+                if (c === 2) return 'background: rgba(254,240,138,0.95); border: 1px solid #facc15; color: #713f12;';
+                if (c === 3) return 'background: rgba(187,247,208,0.95); border: 1px solid #4ade80; color: #14532d;';
+                if (c === 4) return 'background: rgba(191,219,254,0.95); border: 1px solid #60a5fa; color: #1e3a8a;';
+                return 'background: rgba(87,122,112,0.95); border: 1px solid #436058; color: #ffffff; box-shadow: 0 0 3px rgba(87,122,112,0.5);';
+            };
+
+            const b = (id, l) => `<div style="width: 20px; height: 20px; border-radius: 1px; display: flex; align-items: center; justify-content: center; box-sizing: border-box; font-size: 9.5px; font-family: 'Baekbeom', sans-serif; flex-shrink: 0; padding-bottom: 2px; ${getStyle(seatCounts[id]||0)}">${l}</div>`;
+
+            // B 구역 (좌측)
+            const bRows = [[8,9,10], [7,8,9,10,11], [6,7,8,9,10,11], [5,6,7,8,9,10], [4,5,6,7,8,9,10], [3,4,5,6,7,8], [1,2,3,4,5,6]];
+            let bHtml = `<div style="display: flex; flex-direction: column; align-items: flex-end; gap: 3px; transform: rotate(-25deg); transform-origin: center right; margin-top: 30px; margin-right: 15px;">`;
+            bHtml += `<div style="font-size: 15px; font-weight: bold; color: #364d47; margin-bottom: 8px; margin-right: 25px;">B</div>`;
+            bRows.forEach((row, idx) => {
+                let rowHtml = `<div style="display: flex; align-items: center; gap: 3px;"><span style="font-size: 11px; color: #77958b; font-weight: bold; width: 12px; text-align: right; margin-right: 6px;">${idx+1}</span>`;
+                row.forEach(seatNum => rowHtml += b(`B${idx+1}-${seatNum}`, seatNum));
+                rowHtml += `</div>`;
+                bHtml += rowHtml;
+            });
+            bHtml += `</div>`;
+
+            // C 구역 (중앙)
+            const cRows = [14, 15, 16, 17, 18, 21];
+            let cHtml = `<div style="display: flex; flex-direction: column; align-items: center; gap: 3px; z-index: 10; position: relative;">`;
+            cHtml += `<div style="font-size: 15px; font-weight: bold; color: #364d47; margin-bottom: 8px;">C</div>`;
+            cRows.forEach((count, idx) => {
+                let rowHtml = `<div style="display: flex; align-items: center; gap: 3px;"><span style="font-size: 11px; color: #77958b; font-weight: bold; width: 12px; text-align: right; margin-right: 6px;">${idx+1}</span>`;
+                for(let i=1; i<=count; i++) rowHtml += b(`C${idx+1}-${i}`, i);
+                rowHtml += `<span style="font-size: 11px; color: #77958b; font-weight: bold; width: 12px; text-align: left; margin-left: 6px;">${idx+1}</span></div>`;
+                cHtml += rowHtml;
+            });
+            cHtml += `</div>`;
+
+            // D 구역 (우측)
+            const dRows = [8, 9, 10, 8, 7, 6];
+            let dHtml = `<div style="display: flex; flex-direction: column; align-items: flex-start; gap: 3px; transform: rotate(25deg); transform-origin: center left; margin-top: 30px; margin-left: 15px;">`;
+            dHtml += `<div style="font-size: 15px; font-weight: bold; color: #364d47; margin-bottom: 8px; margin-left: 25px;">D</div>`;
+            dRows.forEach((count, idx) => {
+                let rowHtml = `<div style="display: flex; align-items: center; gap: 3px;">`;
+                for(let i=1; i<=count; i++) rowHtml += b(`D${idx+1}-${i}`, i);
+                rowHtml += `<span style="font-size: 11px; color: #77958b; font-weight: bold; width: 12px; text-align: left; margin-left: 6px;">${idx+1}</span></div>`;
+                dHtml += rowHtml;
+            });
+            dHtml += `</div>`;
+
+            let h = `<div style="width: 320px; background: #2d3e3a; color: #fff; text-align: center; padding: 6px 0; font-size: 15px; font-weight: bold; letter-spacing: 5px; border-radius: 4px; margin-bottom: 30px; box-shadow: 2px 2px 8px rgba(0,0,0,0.4);">S T A G E</div>`;
+            h += `<div style="display: flex; align-items: flex-start; justify-content: center; gap: 20px; width: 100%;">${bHtml}${cHtml}${dHtml}</div>`;
+
+            return h;
+        }
+
+        function renderAll() {
+            document.getElementById('globalCouponCount').innerText = `${appData.coupons}장`;
+            document.getElementById('globalOstCount').innerText = `${appData.ostTickets}장`;
+            document.getElementById('globalOtherCouponCount').innerText = `${appData.otherCoupons}장`;
+
+            const hoverCount = document.getElementById('hoverOtherCouponCount');
+            if (hoverCount) hoverCount.innerText = appData.otherCoupons;
+
+            const cb = document.getElementById('cardContainer'); cb.innerHTML = '';
+            appData.cards.forEach((c, i) => {
+                let dots = '';
+                for(let d=1; d<=7; d++) {
+                    if (d <= c.stamps) {
+                        let inn = '🎨', cls = 'bg-prt-300 text-prt-900 border border-prt-400 text-[9px]'; 
+                        if (d===3) { inn = '🎟️'; cls = 'bg-prt-700 text-white shadow-sm'; }
+                        if (d===7) { inn = '🎁'; cls = 'bg-prt-700 text-white shadow-sm'; }
+                        dots += `<div class="w-6 h-6 rounded-full flex items-center justify-center text-[10px] ${cls} font-bold">${inn}</div>`;
+                    } else dots += `<div class="w-6 h-6 rounded-full flex items-center justify-center text-[10px] bg-white border text-slate-300">${d}</div>`;
+                }
+                cb.innerHTML += `<div class="p-3 rounded-xl border cursor-pointer transition-all ${c.isActive ? 'bg-prt-50/80 border-prt-500 shadow-sm' : 'bg-slate-50 border-slate-200 hover:bg-slate-100'}" onclick="switchCard(${c.id})"><div class="flex justify-between items-center mb-2"><span class="text-xs font-bold text-slate-800">${c.isActive ? '🔥 [사용중] ' : '📁 '} 도장판 #${i+1}</span><button onclick="deleteCard(${c.id}, event)" class="text-[10px] text-rose-500 hover:underline">삭제</button></div><div class="flex gap-1">${dots}</div></div>`;
+            });
+            
+            let vC = 0, currGrp = null; const sMap = {};
+            appData.records.forEach(r => { const id = r.visitGroupId || r.id; if (currGrp !== id) { vC++; currGrp = id; } sMap[id] = vC; });
+            const ordGrps = [], seen = new Set();
+            appData.records.forEach(r => { const gid = r.visitGroupId || r.id; if (!seen.has(gid)) { seen.add(gid); ordGrps.push({ gid, records: [] }); } ordGrps.find(g => g.gid === gid).records.push(r); });
+
+            const tbody = document.getElementById('recordTableBody'); tbody.innerHTML = '';
+            if(ordGrps.length === 0) tbody.innerHTML = `<tr><td class="p-8 text-center text-slate-400">등록된 일지가 없습니다.</td></tr>`;
+            else ordGrps.slice().reverse().forEach(g => {
+                const main = g.records[0], cStr = g.records.map(r => { const cIdx = appData.cards.findIndex(c => c.id === r.cardId); return cIdx > -1 ? `판 #${cIdx + 1}` : '삭제됨'; }).map(n => `<span class="bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded text-[9px] mr-1">[${n}]</span>`).join('');
+                const qStr = g.records.map(r => `+${r.qty}`).join(', ');
+                
+                const used40 = g.records.some(r => r.couponType === '40' || r.useCoupon);
+                const usedOther = g.records.some(r => r.couponType === 'other');
+                let cpBadge = '';
+                if(used40) cpBadge += '<span class="bg-amber-100 text-amber-800 text-[9px] font-bold px-1 rounded flex-shrink-0 mr-0.5">재관람할인</span>';
+                if(usedOther) cpBadge += '<span class="bg-purple-100 text-purple-800 text-[9px] font-bold px-1 rounded flex-shrink-0 mr-0.5">기타할인</span>';
+
+                tbody.innerHTML += `<tr class="hover:bg-slate-50 transition"><td class="py-3 px-1"><div class="flex justify-between items-start mb-1"><div class="font-bold text-slate-800 flex items-center flex-wrap gap-y-1"><span class="bg-stone-200 text-stone-700 px-1.5 py-0.5 rounded text-[9px] mr-1 font-bold">[자${sMap[g.gid]}]</span>${cStr}<span class="ml-0.5">${main.date} <span class="text-prt-500 text-[10px] font-bold">${main.time}</span></span></div><div class="flex gap-1.5 items-center pl-2">${cpBadge}<span class="text-prt-500 font-bold whitespace-nowrap">${qStr}</span></div></div><div class="flex justify-between items-center text-slate-600 mt-1"><span>${main.rosina}, ${main.martha}, ${main.marcello}, ${main.jacopo}</span><div class="flex gap-3 items-center"><span class="font-bold text-prt-900">${main.seat}</span><div class="flex gap-1.5"><button onclick="editRecord(${main.id})" class="text-[10px] bg-slate-100 text-slate-500 hover:bg-amber-100 hover:text-amber-600 px-1.5 py-0.5 rounded transition">수정</button><button onclick="deleteRecord(${main.id})" class="text-[10px] bg-slate-100 text-slate-500 hover:bg-rose-100 hover:text-rose-600 px-1.5 py-0.5 rounded transition">삭제</button></div></div></div></td></tr>`;            });
+            
+            generateHeatmap(); 
+            calculateStatsSheet();
+            renderCalendar();
+        }
+
+        window.onload = async function() { 
+            const today = new Date();
+            let yyyy = today.getFullYear();
+            let mm = String(today.getMonth() + 1).padStart(2, '0');
+            let dd = String(today.getDate()).padStart(2, '0');
+            let defaultDate = `${yyyy}-${mm}-${dd}`;
+            
+            if (defaultDate < '2026-07-28') defaultDate = '2026-07-28';
+            if (defaultDate > '2026-10-18') defaultDate = '2026-10-18';
+            
+            document.getElementById('perfDate').value = defaultDate;
+            await loadScheduleFromGoogleSheet();
+            handleDateChange();
+            recalculateState();
+            renderAll(); 
+        };
+    </script>
+</body>
+</html>
