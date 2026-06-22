@@ -51,7 +51,6 @@
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
 
         input[type="date"] { box-sizing: border-box; max-width: 100%; -webkit-appearance: none; }
-        /* number input에서 위아래 화살표 숨기기 */
         input[type="number"]::-webkit-outer-spin-button,
         input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
         
@@ -146,7 +145,6 @@
 
         <div id="logSheet" class="tab-content active">
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <!-- 1. 관극 기록 폼 -->
                 <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex flex-col relative">
                     <div id="scheduleLoadingOverlay" class="absolute inset-0 bg-white/80 backdrop-blur-sm z-10 flex flex-col items-center justify-center rounded-2xl">
                         <i class="fa-solid fa-spinner fa-spin text-2xl text-prt-500 mb-2"></i>
@@ -240,7 +238,6 @@
                                     <option value="D">D구역</option>
                                 </select>
                                 <select id="seatRow" class="flex-1 border border-slate-200 p-2 rounded-xl text-sm focus:outline-none focus:border-prt-500 cursor-pointer bg-white transition-colors hover:bg-slate-50 text-slate-700">
-                                    <!-- JS에서 자동 생성 -->
                                 </select>
                                 <input type="number" id="seatNum" placeholder="번호 입력" class="flex-1 border border-slate-200 p-2 rounded-xl text-sm focus:outline-none focus:border-prt-500 bg-white transition-colors text-slate-700 placeholder:text-slate-300">
                             </div>
@@ -269,7 +266,6 @@
                     </form>
                 </div>
 
-                <!-- 2. 보유 도장판 (위치 변경됨) -->
                 <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex flex-col">
                     <div class="flex justify-between items-center mb-4">
                         <h2 class="text-sm font-bold text-slate-900 flex items-center gap-1.5">
@@ -381,7 +377,7 @@
                     </div>
                     <div class="md:col-span-2 lg:col-span-4 bg-slate-50 p-4 rounded-xl border border-slate-200/60 flex flex-col">
                         <h3 class="text-xs font-bold text-slate-700 mb-3 border-b pb-1.5 flex justify-between items-center">
-                            <span>👥 전체 페어 조합</span>
+                            <span>👥 페어</span>
                             <span id="totalPairCount" class="text-[10px] text-slate-400 font-normal">총 0회</span>
                         </h3>
                         <div id="reportPair" class="space-y-2 flex-grow overflow-y-auto max-h-[150px] pr-1 grid grid-cols-1 md:grid-cols-2 gap-x-4"></div>
@@ -392,7 +388,7 @@
             <div class="bg-white p-4 md:p-6 rounded-2xl border border-slate-200 shadow-sm space-y-6 overflow-hidden">
                 <div class="flex flex-col border-b border-slate-100 pb-4 mb-6">
                     <h2 class="text-slate-900 font-bold text-lg flex items-center justify-start gap-2 mb-4">
-                        <i class="fa-solid fa-map-location-dot text-slate-700"></i> 대학로 TOM 2관 좌석표
+                        <i class="fa-solid fa-map-location-dot text-slate-700"></i> 좌석표
                     </h2>
                     <div class="flex justify-center flex-wrap gap-x-4 gap-y-2 text-[10px] md:text-[11px] font-medium text-slate-700 bg-slate-50 p-2.5 rounded-xl border border-slate-200 shadow-sm w-max max-w-full mx-auto">
                         <div class="flex items-center gap-1.5"><div class="w-3 h-3 bg-slate-100 border border-slate-200 rounded-sm"></div><span>0회</span></div>
@@ -405,18 +401,15 @@
                 </div>
 
                 <div class="heatmap-container relative w-full flex flex-col items-center pb-12 w-full max-w-5xl mx-auto">
-                    <!-- STAGE가 무조건 정중앙에 위치하도록 상위 컨테이너 중앙 정렬 -->
                     <div class="w-[180px] md:w-[320px] bg-slate-800 text-white text-center text-[10px] md:text-xs py-1.5 md:py-2 rounded-b-xl md:rounded-b-2xl tracking-widest font-bold shadow-sm mb-4 md:mb-6 z-20">
                         S T A G E
                     </div>
-                    <!-- 좌석표 그리드 -->
                     <div class="w-full flex justify-center items-start" id="seating-grid"></div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- 스케줄 모달 -->
     <div id="scheduleDetailModal" class="modal-overlay z-[110]" onclick="if(event.target === this) closeScheduleDetailModal()">
         <div class="bg-white rounded-2xl p-6 w-full max-w-md flex flex-col shadow-2xl relative">
             <button onclick="closeScheduleDetailModal()" class="absolute top-4 right-4 text-slate-400 hover:text-rose-500 transition text-xl px-2">
@@ -427,10 +420,10 @@
     </div>
 
     <footer class="mt-12 mb-8 pt-6 border-t border-slate-200 text-center text-[11px] text-slate-400 leading-relaxed">
-        <p class="mb-1 text-slate-500 font-medium">본 사이트는 특정 작품의 관극 지원을 위해 제작되었으며, 수익 창출을 목적으로 하지 않습니다.</p>
+        <p class="mb-1 text-slate-500 font-medium">본 사이트는 수익 창출을 목적으로 하지 않습니다.</p>
         <p class="mt-3"><span class="inline-block mx-1">Font by paperlogy</span> | <span class="inline-block mx-1">Icons by FontAwesome</span> | <span class="inline-block mx-1">Powered by Tailwind CSS</span></p>
-        <p class="mt-3 flex items-center justify-center gap-1"><i class="fa-solid fa-shield-halved text-slate-300"></i>입력된 데이터는 접속하신 기기의 브라우저에서만 로컬로 저장됩니다.</p>
-        <p class="mt-4 font-semibold text-slate-300">&copy; 2026 Custom Sheet Maker. All rights reserved.</p>
+        <p class="mt-3 flex items-center justify-center gap-1"><i class="fa-solid fa-shield-halved text-slate-300"></i>입력된 데이터는 접속하신 기기의 브라우저에서만 확인이 가능합니다.</p>
+        <p class="mt-4 font-semibold text-slate-300">&copy; 2026 <a href="https://x.com/ye_tarou" target="_blank" class="hover:text-py-500 hover:underline transition-colors duration-200">@ye_tarou by X</a>. All rights reserved.</p>
     </footer>
 
     <script>
