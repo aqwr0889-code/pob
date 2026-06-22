@@ -51,6 +51,9 @@
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
 
         input[type="date"] { box-sizing: border-box; max-width: 100%; -webkit-appearance: none; }
+        /* number input에서 위아래 화살표 숨기기 */
+        input[type="number"]::-webkit-outer-spin-button,
+        input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
         
         .heatmap-container { width: 100%; overflow: visible; padding-bottom: 30px; padding-top: 10px; }
 
@@ -62,7 +65,7 @@
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
         @media screen and (max-width: 768px) {
-            input[type="date"], input[type="text"], select { font-size: 16px !important; }
+            input[type="date"], input[type="text"], input[type="number"], select { font-size: 16px !important; }
         }
     </style>
 </head>
@@ -143,6 +146,7 @@
 
         <div id="logSheet" class="tab-content active">
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- 1. 관극 기록 폼 -->
                 <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex flex-col relative">
                     <div id="scheduleLoadingOverlay" class="absolute inset-0 bg-white/80 backdrop-blur-sm z-10 flex flex-col items-center justify-center rounded-2xl">
                         <i class="fa-solid fa-spinner fa-spin text-2xl text-prt-500 mb-2"></i>
@@ -221,20 +225,24 @@
                             </div>
                         </div>
                         <div>
-                            <label class="block text-xs font-semibold text-slate-500 mb-1">좌석 정보</label>
+                            <div class="flex justify-between items-center mb-1">
+                                <label class="block text-xs font-semibold text-slate-500">좌석 정보</label>
+                                <label class="flex items-center gap-1.5 text-[11px] text-slate-600 cursor-pointer hover:text-prt-600 transition">
+                                    <input type="checkbox" id="seatTBD" onchange="toggleSeatInputs('main')" class="accent-prt-500 w-3.5 h-3.5">
+                                    관극 예정
+                                </label>
+                            </div>
                             <div class="flex gap-2">
-                                <select id="seatZone" onchange="toggleSeatSelects('main')" class="flex-1 border border-slate-200 p-2 rounded-xl text-sm focus:outline-none focus:border-prt-500 cursor-pointer bg-white transition-colors hover:bg-slate-50 text-slate-700">
-                                    <option value="">관극 예정</option>
+                                <select id="seatZone" class="flex-1 border border-slate-200 p-2 rounded-xl text-sm focus:outline-none focus:border-prt-500 cursor-pointer bg-white transition-colors hover:bg-slate-50 text-slate-700">
+                                    <option value="">구역</option>
                                     <option value="B">B구역</option>
                                     <option value="C">C구역</option>
                                     <option value="D">D구역</option>
                                 </select>
-                                <select id="seatRow" class="flex-1 border border-slate-200 p-2 rounded-xl text-sm focus:outline-none focus:border-prt-500 cursor-pointer disabled:bg-slate-100 disabled:text-slate-400 disabled:cursor-not-allowed bg-slate-100 transition-colors hover:bg-slate-50 text-slate-700" disabled>
+                                <select id="seatRow" class="flex-1 border border-slate-200 p-2 rounded-xl text-sm focus:outline-none focus:border-prt-500 cursor-pointer bg-white transition-colors hover:bg-slate-50 text-slate-700">
                                     <!-- JS에서 자동 생성 -->
                                 </select>
-                                <select id="seatNum" class="flex-1 border border-slate-200 p-2 rounded-xl text-sm focus:outline-none focus:border-prt-500 cursor-pointer disabled:bg-slate-100 disabled:text-slate-400 disabled:cursor-not-allowed bg-slate-100 transition-colors hover:bg-slate-50 text-slate-700" disabled>
-                                    <!-- JS에서 자동 생성 -->
-                                </select>
+                                <input type="number" id="seatNum" placeholder="번호 입력" class="flex-1 border border-slate-200 p-2 rounded-xl text-sm focus:outline-none focus:border-prt-500 bg-white transition-colors text-slate-700 placeholder:text-slate-300">
                             </div>
                         </div>
                         
@@ -261,6 +269,7 @@
                     </form>
                 </div>
 
+                <!-- 2. 보유 도장판 (위치 변경됨) -->
                 <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex flex-col">
                     <div class="flex justify-between items-center mb-4">
                         <h2 class="text-sm font-bold text-slate-900 flex items-center gap-1.5">
@@ -273,6 +282,7 @@
                     <div id="cardContainer" class="space-y-3 flex-grow overflow-y-auto max-h-[400px] pr-1"></div>
                 </div>
 
+                <!-- 3. 관극 타임라인 -->
                 <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex flex-col">
                     <h2 class="text-sm font-bold text-slate-900 mb-4 flex items-center gap-1.5">
                         <i class="fa-solid fa-list-ol text-prt-500"></i> 관극 타임라인
@@ -428,37 +438,29 @@
             let rowOpts = '<option value="">열 선택</option>';
             for(let i=1; i<=7; i++) rowOpts += `<option value="${i}">${i}열</option>`;
             
-            let numOpts = '<option value="">번호 선택</option>';
-            for(let i=1; i<=21; i++) numOpts += `<option value="${i}">${i}번</option>`;
-
             const sRow = document.getElementById('seatRow');
-            const sNum = document.getElementById('seatNum');
             if(sRow) sRow.innerHTML = rowOpts;
-            if(sNum) sNum.innerHTML = numOpts;
         }
 
-        function toggleSeatSelects(type) {
+        function toggleSeatInputs(type) {
             const prefix = type === 'main' ? 'seat' : 'quickSeat';
-            const zone = document.getElementById(prefix + 'Zone').value;
-            const rowSel = document.getElementById(prefix + 'Row');
-            const numSel = document.getElementById(prefix + 'Num');
+            const isTBD = document.getElementById(prefix + 'TBD').checked;
+            const zSel = document.getElementById(prefix + 'Zone');
+            const rSel = document.getElementById(prefix + 'Row');
+            const nInp = document.getElementById(prefix + 'Num');
 
-            if (zone) {
-                rowSel.disabled = false;
-                numSel.disabled = false;
-                rowSel.classList.remove('bg-slate-100'); rowSel.classList.add('bg-white', 'hover:bg-slate-50');
-                numSel.classList.remove('bg-slate-100'); numSel.classList.add('bg-white', 'hover:bg-slate-50');
-                if(type === 'quick') {
-                   rowSel.classList.replace('bg-slate-100', 'bg-slate-50');
-                   numSel.classList.replace('bg-slate-100', 'bg-slate-50');
-                }
+            if (isTBD) {
+                zSel.disabled = true; rSel.disabled = true; nInp.disabled = true;
+                
+                zSel.classList.add('bg-slate-100', 'text-slate-400'); zSel.classList.remove('bg-white', 'text-slate-700', 'hover:bg-slate-50');
+                rSel.classList.add('bg-slate-100', 'text-slate-400'); rSel.classList.remove('bg-white', 'text-slate-700', 'hover:bg-slate-50');
+                nInp.classList.add('bg-slate-100'); nInp.classList.remove('bg-white');
             } else {
-                rowSel.disabled = true;
-                numSel.disabled = true;
-                rowSel.value = '';
-                numSel.value = '';
-                rowSel.classList.remove('bg-white', 'hover:bg-slate-50'); rowSel.classList.add('bg-slate-100');
-                numSel.classList.remove('bg-white', 'hover:bg-slate-50'); numSel.classList.add('bg-slate-100');
+                zSel.disabled = false; rSel.disabled = false; nInp.disabled = false;
+                
+                zSel.classList.remove('bg-slate-100', 'text-slate-400'); zSel.classList.add('bg-white', 'text-slate-700', 'hover:bg-slate-50');
+                rSel.classList.remove('bg-slate-100', 'text-slate-400'); rSel.classList.add('bg-white', 'text-slate-700', 'hover:bg-slate-50');
+                nInp.classList.remove('bg-slate-100'); nInp.classList.add('bg-white');
             }
         }
 
@@ -780,27 +782,30 @@
             document.getElementById('castJacopo').value = r.jacopo;
             
             const rSeat = r.seat;
+            const tbdChk = document.getElementById('seatTBD');
             const zSel = document.getElementById('seatZone');
             const rSel = document.getElementById('seatRow');
-            const nSel = document.getElementById('seatNum');
+            const nInp = document.getElementById('seatNum');
             
             if (!rSeat || rSeat === '관극 예정') {
+                tbdChk.checked = true;
                 zSel.value = '';
                 rSel.value = '';
-                nSel.value = '';
+                nInp.value = '';
             } else {
+                tbdChk.checked = false;
                 const match = rSeat.match(/^([BCD])(\d+)-(\d+)$/i);
                 if (match) {
                     zSel.value = match[1].toUpperCase();
                     rSel.value = match[2];
-                    nSel.value = match[3];
+                    nInp.value = match[3];
                 } else {
                     zSel.value = '';
                     rSel.value = '';
-                    nSel.value = '';
+                    nInp.value = '';
                 }
             }
-            toggleSeatSelects('main');
+            toggleSeatInputs('main');
             
             document.getElementById('stampsEarned').value = r.qty;
             document.getElementById('couponType').value = r.couponType || (r.useCoupon ? '40' : '');
@@ -814,8 +819,11 @@
             document.getElementById('recordForm').reset();
             document.getElementById('editCardArea').classList.add('hidden');
             
+            document.getElementById('seatTBD').checked = false;
             document.getElementById('seatZone').value = '';
-            toggleSeatSelects('main');
+            document.getElementById('seatRow').value = '';
+            document.getElementById('seatNum').value = '';
+            toggleSeatInputs('main');
 
             const t = new Date();
             let defaultDate = `${t.getFullYear()}-${String(t.getMonth() + 1).padStart(2, '0')}-${String(t.getDate()).padStart(2, '0')}`;
@@ -835,13 +843,14 @@
             const rosina = document.getElementById('castRosina').value, martha = document.getElementById('castMartha').value;
             const marcello = document.getElementById('castMarcello').value, jacopo = document.getElementById('castJacopo').value;
             
+            const isTBD = document.getElementById('seatTBD').checked;
             const zone = document.getElementById('seatZone').value;
             const row = document.getElementById('seatRow').value;
             const num = document.getElementById('seatNum').value;
             
             let seat = '관극 예정';
-            if (zone) {
-                if (!row || !num) return alert('좌석 열과 번호를 모두 선택해주세요.');
+            if (!isTBD) {
+                if (!zone || !row || !num) return alert('좌석 구역, 열, 번호를 모두 입력해주세요.');
                 seat = `${zone}${row}-${num}`;
             }
 
@@ -953,8 +962,6 @@
 
             let rowOpts = '<option value="">열 선택</option>';
             for(let i=1; i<=7; i++) rowOpts += `<option value="${i}">${i}열</option>`;
-            let numOpts = '<option value="">번호 선택</option>';
-            for(let i=1; i<=21; i++) numOpts += `<option value="${i}">${i}번</option>`;
 
             html += `
                 <div class="mt-4 border-t border-slate-200 pt-4">
@@ -963,22 +970,30 @@
                         <select id="quickCardId" class="w-full border border-slate-200 p-2 rounded-lg text-xs focus:outline-none focus:border-prt-500 bg-slate-50 font-medium">
                             ${cardOptions}
                         </select>
-                        <div class="flex gap-2">
-                            <select id="quickSeatZone" onchange="toggleSeatSelects('quick')" class="flex-1 border border-slate-200 p-2 rounded-lg text-xs focus:outline-none focus:border-prt-500 bg-white cursor-pointer transition">
-                                <option value="">관극 예정</option>
-                                <option value="B">B구역</option>
-                                <option value="C">C구역</option>
-                                <option value="D">D구역</option>
-                            </select>
-                            <select id="quickSeatRow" class="flex-1 border border-slate-200 p-2 rounded-lg text-xs focus:outline-none focus:border-prt-500 bg-slate-100 disabled:text-slate-400 cursor-pointer transition" disabled>
-                                ${rowOpts}
-                            </select>
-                            <select id="quickSeatNum" class="flex-1 border border-slate-200 p-2 rounded-lg text-xs focus:outline-none focus:border-prt-500 bg-slate-100 disabled:text-slate-400 cursor-pointer transition" disabled>
-                                ${numOpts}
-                            </select>
+                        
+                        <div>
+                            <div class="flex justify-between items-center mb-1">
+                                <label class="text-[11px] font-semibold text-slate-700">좌석 정보</label>
+                                <label class="flex items-center gap-1 text-[10px] text-slate-500 cursor-pointer hover:text-prt-600 transition">
+                                    <input type="checkbox" id="quickSeatTBD" onchange="toggleSeatInputs('quick')" class="accent-prt-500 w-3 h-3">
+                                    관극 예정
+                                </label>
+                            </div>
+                            <div class="flex gap-2">
+                                <select id="quickSeatZone" class="flex-1 border border-slate-200 p-2 rounded-lg text-xs focus:outline-none focus:border-prt-500 bg-white cursor-pointer transition">
+                                    <option value="">구역</option>
+                                    <option value="B">B구역</option>
+                                    <option value="C">C구역</option>
+                                    <option value="D">D구역</option>
+                                </select>
+                                <select id="quickSeatRow" class="flex-1 border border-slate-200 p-2 rounded-lg text-xs focus:outline-none focus:border-prt-500 bg-white cursor-pointer transition">
+                                    ${rowOpts}
+                                </select>
+                                <input type="number" id="quickSeatNum" placeholder="번호 입력" class="flex-1 border border-slate-200 p-2 rounded-lg text-xs focus:outline-none focus:border-prt-500 bg-white transition placeholder:text-slate-300">
+                            </div>
                         </div>
                         
-                        <div class="flex gap-2">
+                        <div class="flex gap-2 pt-1">
                             <select id="quickStamps" class="flex-1 border border-slate-200 p-2 rounded-lg text-xs focus:outline-none focus:border-prt-500">
                                 <option value="1">도장 1개 적립</option>
                                 <option value="2">도장 2개 적립</option>
@@ -991,7 +1006,7 @@
                             </select>
                         </div>
                         
-                        <button onclick="quickAddRecord('${date}', '${time}', '${cast[0]}', '${cast[1]}', '${cast[2]}', '${cast[3]}')" class="w-full bg-slate-800 text-white py-2 rounded-lg text-xs font-bold hover:bg-slate-900 transition mt-1">
+                        <button onclick="quickAddRecord('${date}', '${time}', '${cast[0]}', '${cast[1]}', '${cast[2]}', '${cast[3]}')" class="w-full bg-slate-800 text-white py-2 rounded-lg text-xs font-bold hover:bg-slate-900 transition mt-2">
                             기록 저장하고 타임라인 보기
                         </button>
                     </div>
@@ -1007,13 +1022,14 @@
         }
 
         function quickAddRecord(date, time, rosina, martha, marcello, jacopo) {
+            const isTBD = document.getElementById('quickSeatTBD').checked;
             const zone = document.getElementById('quickSeatZone').value;
             const row = document.getElementById('quickSeatRow').value;
             const num = document.getElementById('quickSeatNum').value;
             
             let seat = '관극 예정';
-            if (zone) {
-                if (!row || !num) return alert('좌석 열과 번호를 모두 선택해주세요.');
+            if (!isTBD) {
+                if (!zone || !row || !num) return alert('좌석 구역, 열, 번호를 모두 입력해주세요.');
                 seat = `${zone}${row}-${num}`;
             }
             
