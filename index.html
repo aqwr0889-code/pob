@@ -10,10 +10,6 @@
           crossorigin="anonymous" 
           referrerpolicy="no-referrer" />
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" 
-        integrity="sha512-BNaRQnYJYiPSqHHDb58B0yaPfCu+Wgds8Gp/gU33kqBtgNS4tSPHuGibyoeqMV/TJlSKda6FXzoEyYGjTe+vXA==" 
-        crossorigin="anonymous" 
-        referrerpolicy="no-referrer"></script>
     <script>
         tailwind.config = {
             theme: {
@@ -41,18 +37,9 @@
             font-weight: normal;
             font-style: normal;
         }
-        @font-face {
-            font-family: 'Baekbeom';
-            src: url('./baekbeom.ttf') format('truetype');
-            font-weight: normal;
-            font-style: normal;
-        }
 
         body, input, select, button, textarea { 
             font-family: 'Paperlogy', "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif; 
-        }
-        #export-container, #export-container * {
-            font-family: 'Baekbeom', sans-serif !important;
         }
         
         body { background-color: #f8fafc; letter-spacing: 0.5px; }
@@ -157,6 +144,17 @@
 
         <div id="logSheet" class="tab-content active">
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex flex-col">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-sm font-bold text-slate-900 flex items-center gap-1.5">
+                            <i class="fa-solid fa-stamp text-prt-500"></i> 보유 도장판
+                        </h2>
+                        <button onclick="createNewCard()" class="text-xs bg-prt-50 text-prt-600 hover:bg-prt-100 px-2.5 py-1.5 rounded-lg font-semibold transition shadow-sm">
+                            + 추가
+                        </button>
+                    </div>
+                    <div id="cardContainer" class="space-y-3 flex-grow overflow-y-auto max-h-[400px] pr-1"></div>
+                </div>
 
                 <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex flex-col relative">
                     <div id="scheduleLoadingOverlay" class="absolute inset-0 bg-white/80 backdrop-blur-sm z-10 flex flex-col items-center justify-center rounded-2xl">
@@ -263,18 +261,6 @@
                         </button>
                     </form>
                 </div>
-                
-                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex flex-col">
-                    <div class="flex justify-between items-center mb-4">
-                        <h2 class="text-sm font-bold text-slate-900 flex items-center gap-1.5">
-                            <i class="fa-solid fa-stamp text-prt-500"></i> 보유 도장판
-                        </h2>
-                        <button onclick="createNewCard()" class="text-xs bg-prt-50 text-prt-600 hover:bg-prt-100 px-2.5 py-1.5 rounded-lg font-semibold transition shadow-sm">
-                            + 추가
-                        </button>
-                    </div>
-                    <div id="cardContainer" class="space-y-3 flex-grow overflow-y-auto max-h-[400px] pr-1"></div>
-                </div>
 
                 <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex flex-col">
                     <h2 class="text-sm font-bold text-slate-900 mb-4 flex items-center gap-1.5">
@@ -345,9 +331,6 @@
                     <h2 class="text-base font-bold text-slate-900 flex items-center gap-1.5">
                         <i class="fa-solid fa-chart-line text-prt-500"></i> 캐스트 및 페어 정산
                     </h2>
-                    <button id="exportImageBtn" onclick="openPreviewModal()" class="text-xs bg-prt-800 text-prt-50 px-4 py-2 rounded-xl hover:bg-prt-900 transition flex items-center gap-2 shadow-sm font-bold">
-                        <i class="fa-solid fa-image text-prt-300"></i> 정산표 이미지로 저장
-                    </button>
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -412,32 +395,6 @@
         </div>
     </div>
 
-    <div id="imagePreviewModal" class="modal-overlay z-[120]" onclick="if(event.target === this) closePreviewModal()">
-        <div class="bg-white rounded-2xl p-5 w-full max-w-4xl flex flex-col items-center shadow-2xl relative">
-            <div class="flex justify-between w-full mb-4 items-center">
-                <h3 class="text-lg font-bold text-slate-800"><i class="fa-solid fa-image text-prt-500 mr-2"></i>정산표 미리보기</h3>
-                <button onclick="closePreviewModal()" class="text-slate-400 hover:text-rose-500 transition text-2xl px-2">
-                    <i class="fa-solid fa-times"></i>
-                </button>
-            </div>
-            
-            <div class="w-full bg-slate-100 rounded-xl p-2 mb-5 flex items-center justify-center min-h-[300px] border border-slate-200 overflow-auto">
-                <img id="previewImage" src="" class="max-w-full h-auto rounded shadow-sm hidden" alt="정산표 미리보기">
-                <div id="previewLoading" class="text-slate-400 flex flex-col items-center gap-2">
-                    <i class="fa-solid fa-spinner fa-spin text-3xl"></i>
-                    <span class="text-sm font-medium">이미지를 생성하고 있습니다...</span>
-                </div>
-            </div>
-
-            <div class="flex gap-3 w-full justify-end">
-                <button onclick="closePreviewModal()" class="px-5 py-2.5 bg-slate-200 text-slate-700 hover:bg-slate-300 rounded-xl font-medium transition">취소</button>
-                <button onclick="downloadRenderedImage()" id="finalDownloadBtn" disabled class="px-6 py-2.5 bg-prt-800 text-white hover:bg-prt-900 rounded-xl font-bold transition flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-md">
-                    <i class="fa-solid fa-download"></i> 이미지 저장하기
-                </button>
-            </div>
-        </div>
-    </div>
-
     <div id="scheduleDetailModal" class="modal-overlay z-[110]" onclick="if(event.target === this) closeScheduleDetailModal()">
         <div class="bg-white rounded-2xl p-6 w-full max-w-md flex flex-col shadow-2xl relative">
             <button onclick="closeScheduleDetailModal()" class="absolute top-4 right-4 text-slate-400 hover:text-rose-500 transition text-xl px-2">
@@ -447,11 +404,9 @@
         </div>
     </div>
 
-    <div id="export-container" style="position: fixed; top: 0; left: -9999px; width: 1400px; height: auto; z-index: -9999; font-family: 'Baekbeom', sans-serif; pointer-events: none;"></div>
-
     <footer class="mt-12 mb-8 pt-6 border-t border-slate-200 text-center text-[11px] text-slate-400 leading-relaxed">
         <p class="mb-1 text-slate-500 font-medium">본 사이트는 특정 작품의 관극 지원을 위해 제작되었으며, 수익 창출을 목적으로 하지 않습니다.</p>
-        <p class="mt-3"><span class="inline-block mx-1">Font by paperlogy</span> | <span class="inline-block mx-1">Icons by FontAwesome</span> | <span class="inline-block mx-1">Powered by Tailwind CSS & html2canvas</span></p>
+        <p class="mt-3"><span class="inline-block mx-1">Font by paperlogy</span> | <span class="inline-block mx-1">Icons by FontAwesome</span> | <span class="inline-block mx-1">Powered by Tailwind CSS</span></p>
         <p class="mt-3 flex items-center justify-center gap-1"><i class="fa-solid fa-shield-halved text-slate-300"></i>입력된 데이터는 접속하신 기기의 브라우저에서만 로컬로 저장됩니다.</p>
         <p class="mt-4 font-semibold text-slate-300">&copy; 2026 Custom Sheet Maker. All rights reserved.</p>
     </footer>
@@ -486,7 +441,7 @@
                 const oldStamps = card.stamps;
                 card.stamps += record.qty;
 
-                // 재관람 혜택 (추후 변경 가능하도록 임시 로직 유지)
+                // 재관람 혜택
                 if (oldStamps < 3 && card.stamps >= 3) appData.coupons += 2;
                 if (oldStamps < 7 && card.stamps >= 7) appData.ostTickets += 1;
             });
@@ -501,7 +456,6 @@
         if (appData.baseOtherCoupons === undefined) appData.baseOtherCoupons = 0;
 
         let globalStats = null;
-        let generatedImageUrl = '';
 
         const __todayForCal = new Date();
         let calYear = 2026;
@@ -532,21 +486,6 @@
         }
 
         let colorIndex = 0;
-
-        const imagePaths = {
-            poster: './메인 포스터.jpg',
-            tex2: './질감2.jpg',
-            tex3: './질감3.jpg',
-            tex4: './질감4.jpg',
-            deco: './deco.png',
-            prtLogo: './logo.png',
-            actors: {
-                '임예진': './로지나_임예진.jpg', '성민재': './로지나_성민재.jpg', '박소현': './로지나_박소현.jpg',
-                '송영미': './마르타_송영미.jpg', '김수': './마르타_김수.jpg', '김단이': './마르타_김단이.jpg',
-                '김이담': './마르첼로_김이담.jpg', '박선영': './마르첼로_박선영.jpg', '정백선': './마르첼로_정백선.jpg',
-                '윤지성': './야코포_윤지성.jpg', '도유현': './야코포_도유현.jpg', '조은성': './야코포_조은성.jpg'
-            }
-        };
 
         function exportData() {
             const dataStr = JSON.stringify(appData);
@@ -1015,21 +954,20 @@
 
             const getColorClass = (c) => c===0?'bg-slate-100 text-slate-300 border border-slate-200':c===1?'bg-red-200 text-red-900 border border-red-300':c===2?'bg-yellow-200 text-yellow-900 border border-yellow-300':c===3?'bg-green-200 text-green-900 border border-green-300':c===4?'bg-blue-200 text-blue-900 border border-blue-300':'bg-prt-500 text-white font-bold border border-prt-600 shadow-sm';
             
-            // 반응형 크기를 전체적으로 조금 더 줄여서 가로 스크롤 방지
             const b = (id, l) => `<div class="w-[8.5px] h-[8.5px] sm:w-[12px] sm:h-[12px] md:w-[16px] md:h-[16px] lg:w-[20px] lg:h-[20px] text-[4px] sm:text-[6px] md:text-[8px] lg:text-[10px] rounded-[1px] md:rounded flex items-center justify-center transition-all flex-shrink-0 ${getColorClass(seatCounts[id]||0)}" title="${id}석 (${seatCounts[id]||0}회)">${l}</div>`;
             const eb = (n) => Array(n).fill(`<div class="w-[8.5px] h-[8.5px] sm:w-[12px] sm:h-[12px] md:w-[16px] md:h-[16px] lg:w-[20px] lg:h-[20px] bg-transparent flex-shrink-0"></div>`).join('');
 
-            // B 구역 (각도 조정 및 누락 좌석 배열 복구, 위로 올림)
+            // B 구역 (우측 통로 부분이 완벽한 일직선이 되도록 emptyR을 모두 제거하고 emptyL로 조절)
             let bHtml = `<div class="flex flex-col items-center gap-[1px] sm:gap-[2px] md:gap-[3px] mt-0 sm:mt-1 md:mt-2 mr-1 sm:mr-3 md:mr-5" style="transform: rotate(18deg); transform-origin: top right;">`;
             bHtml += `<div class="text-xs sm:text-sm md:text-base font-bold text-slate-800 mb-1 md:mb-3">B</div>`;
             const bData = [
-                { row: 1, emptyL: 7, seats: [8,9,10], emptyR: 1 },
-                { row: 2, emptyL: 6, seats: [7,8,9,10,11], emptyR: 0 },
-                { row: 3, emptyL: 5, seats: [6,7,8,9,10,11], emptyR: 0 },
-                { row: 4, emptyL: 4, seats: [5,6,7,8,9,10], emptyR: 1 },
-                { row: 5, emptyL: 3, seats: [4,5,6,7,8,9,10], emptyR: 1 },
-                { row: 6, emptyL: 2, seats: [3,4,5,6,7,8], emptyR: 3 },
-                { row: 7, emptyL: 0, seats: [1,2,3,4,5,6], emptyR: 5 }
+                { row: 1, emptyL: 4, seats: [8,9,10], emptyR: 0 },
+                { row: 2, emptyL: 2, seats: [7,8,9,10,11], emptyR: 0 },
+                { row: 3, emptyL: 1, seats: [6,7,8,9,10,11], emptyR: 0 },
+                { row: 4, emptyL: 1, seats: [5,6,7,8,9,10], emptyR: 0 },
+                { row: 5, emptyL: 0, seats: [4,5,6,7,8,9,10], emptyR: 0 },
+                { row: 6, emptyL: 1, seats: [3,4,5,6,7,8], emptyR: 0 },
+                { row: 7, emptyL: 1, seats: [1,2,3,4,5,6], emptyR: 0 }
             ];
             bData.forEach(d => {
                 let rHtml = `<div class="flex items-center gap-[1px] sm:gap-[2px] md:gap-[3px]"><span class="text-[7px] sm:text-[9px] md:text-[11px] text-slate-400 font-bold w-3 md:w-4 text-right mr-1 md:mr-2">${d.row}</span>`;
@@ -1053,7 +991,7 @@
             });
             cHtml += `</div>`;
 
-            // D 구역 (각도 조정 및 누락 좌석 배열 복구, 위로 올림)
+            // D 구역
             let dHtml = `<div class="flex flex-col items-center gap-[1px] sm:gap-[2px] md:gap-[3px] mt-0 sm:mt-1 md:mt-2 ml-1 sm:ml-3 md:ml-5" style="transform: rotate(-18deg); transform-origin: top left;">`;
             dHtml += `<div class="text-xs sm:text-sm md:text-base font-bold text-slate-800 mb-1 md:mb-3">D</div>`;
             const dData = [
@@ -1074,7 +1012,6 @@
             });
             dHtml += `</div>`;
 
-            // 강제 700px 등 고정 폭을 없애 모바일에서 스크롤 없이 축소되도록 변경
             document.getElementById('seating-grid').innerHTML = `<div class="flex items-start justify-center pb-8 w-full max-w-full">${bHtml}${cHtml}${dHtml}</div>`;
         }
 
@@ -1264,226 +1201,6 @@
             const pList = Array.from(allPKeys).map(k => ({ name: k, att: pairs[k]||0, tot: totalPairs[k]||pairs[k]||0 })).sort((a,b) => b.att-a.att || b.tot-a.tot);
             if(pList.length === 0) rPair.innerHTML = '<p class="text-xs text-slate-400 text-center py-4 col-span-full">데이터 없음</p>';
             else pList.forEach(p => rPair.innerHTML += `<div class="flex justify-between items-center bg-white border border-slate-200/80 p-1.5 rounded-lg text-[10px]"><span class="font-medium text-slate-700 whitespace-normal leading-snug break-keep">${p.name}</span><span class="bg-prt-50 text-prt-700 px-1.5 py-0.5 rounded font-bold ml-1 flex-shrink-0">${p.att}회 / ${p.tot}회</span></div>`);
-        }
-
-        async function openPreviewModal() {
-            const modal = document.getElementById('imagePreviewModal');
-            const previewImg = document.getElementById('previewImage');
-            const loadingUI = document.getElementById('previewLoading');
-            const downloadBtn = document.getElementById('finalDownloadBtn');
-            
-            modal.classList.add('active');
-            previewImg.classList.add('hidden');
-            loadingUI.classList.remove('hidden');
-            downloadBtn.disabled = true;
-
-            await renderCanvasForPreview();
-        }
-
-        function closePreviewModal() { document.getElementById('imagePreviewModal').classList.remove('active'); }
-
-        function downloadRenderedImage() {
-            if (!generatedImageUrl) return;
-            const link = document.createElement('a');
-            link.download = `소년의초상_정산_${new Date().toISOString().slice(0,10)}.png`;
-            link.href = generatedImageUrl;
-            document.body.appendChild(link); link.click(); document.body.removeChild(link);
-            closePreviewModal();
-        }
-
-        async function renderCanvasForPreview() {
-            const container = document.getElementById('export-container');
-            container.style.height = 'auto';
-            
-            const buildActorCard = (role, name, rot, zIndex) => {
-                const imgPath = imagePaths.actors[name];
-                const safeImgPath = encodeURI(imgPath);
-
-                let att = 0, tot = 0;
-                if(role === 'rosina') { att = globalStats.castRo[name]||0; tot = globalStats.totalRo[name]||0; }
-                if(role === 'martha') { att = globalStats.castMa[name]||0; tot = globalStats.totalMa[name]||0; }
-                if(role === 'marcello') { att = globalStats.castMc[name]||0; tot = globalStats.totalMc[name]||0; }
-                if(role === 'jacopo') { att = globalStats.castJa[name]||0; tot = globalStats.totalJa[name]||0; }
-                const dTot = tot > 0 ? tot : att; 
-
-                return `
-                    <div style="position: relative; z-index: ${zIndex}; transform: rotate(${rot}deg); background: #eeebe5; padding: 5px; border-radius: 2px; box-shadow: 3px 5px 15px rgba(0,0,0,0.5); display: flex; flex-direction: column; align-items: center; border: 1px solid #c8c0b5;">
-                        <div style="width: 145px; height: 200px; overflow: hidden; position: relative; border: 1px solid #9c9489;">
-                            <img src="${safeImgPath}" style="width: 100%; height: 100%; object-fit: cover; filter: sepia(30%) grayscale(40%) contrast(110%) brightness(0.95);" onerror="this.style.display='none'">
-                            
-                            <div style="position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(to top, rgba(0,0,0,1) 0%, rgba(0,0,0,0.9) 35%, rgba(0,0,0,0) 75%); padding: 50px 5px 8px 5px; display: flex; flex-direction: column; align-items: center; line-height: 1.2;">
-                                <span style="font-family: 'Baekbeom', sans-serif; font-size: 16px; font-weight: bold; color: #ffffff; letter-spacing: 1.5px; text-shadow: 1px 1px 2px rgba(0,0,0,0.8);">${name}</span>
-                                <span style="font-family: 'Baekbeom', sans-serif; font-size: 12px; font-weight: bold; color: #d1dfdb; margin-top: 3px; text-shadow: 1px 1px 2px rgba(0,0,0,0.8);">${att} / ${dTot}</span>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            };
-
-            const safePoster = encodeURI(imagePaths.poster);
-            const safeTex2 = encodeURI(imagePaths.tex2);
-            const safeTex3 = encodeURI(imagePaths.tex3);
-            const safeTex4 = encodeURI(imagePaths.tex4);
-            const safeDeco = encodeURI(imagePaths.deco);
-            const safeLogo = encodeURI(imagePaths.prtLogo);
-
-            container.innerHTML = `
-                <div style="position: absolute; inset: 0; background-color: #1a1e1d;"></div>
-                <div style="position: absolute; inset: 0; background-image: url('${safePoster}'); background-size: cover; background-position: center; opacity: 0.35; filter: grayscale(30%); z-index: 1;"></div>
-                <div style="position: absolute; inset: 0; background-image: url('${safeTex4}'); background-size: cover; background-position: center; opacity: 0.2; z-index: 2;"></div>
-                
-                <div style="position: relative; z-index: 10; display: flex; align-items: center; padding: 50px; gap: 40px; box-sizing: border-box; width: 100%;">
-                    
-                    <div style="flex: 1.3; position: relative;">
-                        <div style="position: absolute; top: -20px; left: -20px; right: -20px; bottom: -20px; background-image: url('${safeTex3}'); background-size: cover; opacity: 0.7; transform: rotate(-1.5deg); box-shadow: 2px 4px 20px rgba(0,0,0,0.7); filter: sepia(10%) grayscale(30%); z-index: 1;"></div>
-
-                        <div style="position: relative; z-index: 10; display: flex; flex-direction: column; gap: 20px; padding: 25px;">
-                            <div style="display: flex; gap: 15px; justify-content: center;">
-                                ${buildActorCard('rosina', '임예진', -2, 12)}
-                                ${buildActorCard('rosina', '성민재', 1, 11)}
-                                ${buildActorCard('rosina', '박소현', -1, 13)}
-                            </div>
-                            <div style="display: flex; gap: 15px; justify-content: center;">
-                                ${buildActorCard('martha', '송영미', 2, 15)}
-                                ${buildActorCard('martha', '김수', -1, 14)}
-                                ${buildActorCard('martha', '김단이', 1, 16)}
-                            </div>
-                            <div style="display: flex; gap: 15px; justify-content: center;">
-                                ${buildActorCard('marcello', '김이담', -1, 11)}
-                                ${buildActorCard('marcello', '박선영', 2, 12)}
-                                ${buildActorCard('marcello', '정백선', -2, 10)}
-                            </div>
-                            <div style="display: flex; gap: 15px; justify-content: center;">
-                                ${buildActorCard('jacopo', '윤지성', 1, 13)}
-                                ${buildActorCard('jacopo', '도유현', -1, 14)}
-                                ${buildActorCard('jacopo', '조은성', 2, 15)}
-                            </div>
-                        </div>
-                    </div>
-
-                    <div style="flex: 0.95; display: flex; flex-direction: column; position: relative; z-index: 20;">
-                        <div style="background-color: #f0f2f1; border-radius: 2px; padding: 35px 25px; box-shadow: inset 0 0 60px rgba(87, 122, 112, 0.2), 8px 12px 30px rgba(0,0,0,0.8); position: relative; overflow: hidden; flex-grow: 1; display: flex; flex-direction: column; border: 1px solid #c5d1cc; transform: rotate(1deg);">
-                            
-                            <div style="position: absolute; inset: 0; background-image: url('${safeTex2}'); background-size: cover; opacity: 0.15; pointer-events: none; z-index: 0;"></div>
-
-                            <div style="position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding-bottom: 15px; margin-bottom: 25px;">
-                                <img src="${safeLogo}" style="height: 100px; object-fit: contain; opacity: 0.9;" onerror="this.style.display='none'" alt="소년의 초상">
-                                <h1 style="font-family: 'Baekbeom', sans-serif; font-size: 32px; font-weight: bold; color: #364d47; margin-top: 10px; display: ${imagePaths.prtLogo === './logo.png' ? 'block' : 'none'};">소년의 초상</h1>
-                            </div>
-
-                            <div style="position: relative; z-index: 1; text-align: center; font-size: 22px; color: #364d47; margin-bottom: 25px;">
-                                총 <span style="color: #577a70; font-weight: bold; font-size: 40px; margin: 0 6px;">${globalStats.totalVisits}</span> 회
-                            </div>
-
-                            <div id="exportSeatingGrid" style="display:flex; flex-direction:column; gap: 5px; width: 100%; align-items: center; justify-content: center; position: relative; z-index: 1;"></div>
-                            
-                            <div style="position: relative; z-index: 1; display: flex; justify-content: center; gap: 12px; margin-top: 35px; font-size: 14px; color: #436058; font-weight: bold;">
-                                <div style="display: flex; align-items: center;"><div style="width:13px; height:13px; background: rgba(250,245,235,0.9); border:1px solid #a39b8d; margin-right: 5px;"></div><span style="padding-bottom: 3px;">0</span></div>
-                                <div style="display: flex; align-items: center;"><div style="width:13px; height:13px; background:#fecaca; border:1px solid #f87171; margin-right: 5px;"></div><span style="padding-bottom: 3px;">1</span></div>
-                                <div style="display: flex; align-items: center;"><div style="width:13px; height:13px; background:#fef08a; border:1px solid #facc15; margin-right: 5px;"></div><span style="padding-bottom: 3px;">2</span></div>
-                                <div style="display: flex; align-items: center;"><div style="width:13px; height:13px; background:#bbf7d0; border:1px solid #4ade80; margin-right: 5px;"></div><span style="padding-bottom: 3px;">3</span></div>
-                                <div style="display: flex; align-items: center;"><div style="width:13px; height:13px; background:#bfdbfe; border:1px solid #60a5fa; margin-right: 5px;"></div><span style="padding-bottom: 3px;">4</span></div>
-                                <div style="display: flex; align-items: center;"><div style="width:13px; height:13px; background:#577a70; border:1px solid #364d47; margin-right: 5px;"></div><span style="padding-bottom: 3px;">5+</span></div>
-                            </div>
-                        </div>
-
-                        <img src="${safeDeco}" style="position: absolute; bottom: -40px; right: -40px; width: 250px; mix-blend-mode: multiply; opacity: 0.6; transform: rotate(-15deg); z-index: 30;" onerror="this.style.display='none'" alt="장식">
-                    </div>
-                </div>
-            `;
-
-            document.getElementById('exportSeatingGrid').innerHTML = getInlineStyleHeatmapHTML();
-
-            await new Promise(r => setTimeout(r, 800));
-
-            try {
-                const canvas = await html2canvas(container, { scale: 2, useCORS: true, backgroundColor: '#1a1a1a', logging: false });
-                generatedImageUrl = canvas.toDataURL('image/png');
-                document.getElementById('previewLoading').classList.add('hidden');
-                document.getElementById('previewImage').src = generatedImageUrl;
-                document.getElementById('previewImage').classList.remove('hidden');
-                document.getElementById('finalDownloadBtn').disabled = false;
-            } catch (error) {
-                console.error(error); closePreviewModal(); alert('이미지 생성 중 오류가 발생했습니다.');
-            }
-        }
-
-        function getInlineStyleHeatmapHTML() {
-            const seatCounts = {}, uniqueVisits = [], seenGroups = new Set();
-            appData.records.forEach(r => { const gid = r.visitGroupId || r.id; if(!seenGroups.has(gid)) { seenGroups.add(gid); uniqueVisits.push(r); } });
-            uniqueVisits.forEach(r => seatCounts[r.seat] = (seatCounts[r.seat] || 0) + 1);
-
-            const getStyle = (c) => {
-                if (c === 0) return 'background: rgba(250,245,235,0.95); border: 1px solid #c5d1cc; color: #77958b;';
-                if (c === 1) return 'background: rgba(254,202,202,0.95); border: 1px solid #f87171; color: #7f1d1d;';
-                if (c === 2) return 'background: rgba(254,240,138,0.95); border: 1px solid #facc15; color: #713f12;';
-                if (c === 3) return 'background: rgba(187,247,208,0.95); border: 1px solid #4ade80; color: #14532d;';
-                if (c === 4) return 'background: rgba(191,219,254,0.95); border: 1px solid #60a5fa; color: #1e3a8a;';
-                return 'background: rgba(87,122,112,0.95); border: 1px solid #436058; color: #ffffff; box-shadow: 0 0 3px rgba(87,122,112,0.5);';
-            };
-
-            const b = (id, l) => `<div style="width: 20px; height: 20px; border-radius: 1px; display: flex; align-items: center; justify-content: center; box-sizing: border-box; font-size: 9.5px; font-family: 'Baekbeom', sans-serif; flex-shrink: 0; padding-bottom: 2px; ${getStyle(seatCounts[id]||0)}">${l}</div>`;
-            const eb = (n) => Array(n).fill(`<div style="width: 20px; height: 20px; background: transparent; flex-shrink: 0;"></div>`).join('');
-
-            // B 구역 (이미지 내보내기용)
-            let bHtml = `<div style="display: flex; flex-direction: column; align-items: center; gap: 3px; transform: rotate(18deg); transform-origin: top right; margin-top: 10px; margin-right: 15px;">`;
-            bHtml += `<div style="font-size: 15px; font-weight: bold; color: #364d47; margin-bottom: 8px;">B</div>`;
-            const bData = [
-                { row: 1, emptyL: 7, seats: [8,9,10], emptyR: 1 },
-                { row: 2, emptyL: 6, seats: [7,8,9,10,11], emptyR: 0 },
-                { row: 3, emptyL: 5, seats: [6,7,8,9,10,11], emptyR: 0 },
-                { row: 4, emptyL: 4, seats: [5,6,7,8,9,10], emptyR: 1 },
-                { row: 5, emptyL: 3, seats: [4,5,6,7,8,9,10], emptyR: 1 },
-                { row: 6, emptyL: 2, seats: [3,4,5,6,7,8], emptyR: 3 },
-                { row: 7, emptyL: 0, seats: [1,2,3,4,5,6], emptyR: 5 }
-            ];
-            bData.forEach(d => {
-                let rHtml = `<div style="display: flex; align-items: center; gap: 3px;"><span style="font-size: 11px; color: #77958b; font-weight: bold; width: 12px; text-align: right; margin-right: 6px;">${d.row}</span>`;
-                rHtml += eb(d.emptyL);
-                d.seats.forEach(s => rHtml += b(`B${d.row}-${s}`, s));
-                rHtml += eb(d.emptyR);
-                rHtml += `</div>`;
-                bHtml += rHtml;
-            });
-            bHtml += `</div>`;
-
-            // C 구역
-            let cHtml = `<div style="display: flex; flex-direction: column; align-items: center; gap: 3px; z-index: 10; position: relative;">`;
-            cHtml += `<div style="font-size: 15px; font-weight: bold; color: #364d47; margin-bottom: 8px;">C</div>`;
-            const cData = [14, 15, 16, 17, 18, 21];
-            cData.forEach((count, idx) => {
-                let rHtml = `<div style="display: flex; align-items: center; gap: 3px;"><span style="font-size: 11px; color: #77958b; font-weight: bold; width: 12px; text-align: right; margin-right: 6px;">${idx+1}</span>`;
-                for(let i=1; i<=count; i++) rHtml += b(`C${idx+1}-${i}`, i);
-                rHtml += `<span style="width: 12px; margin-left: 6px;"></span></div>`;
-                cHtml += rHtml;
-            });
-            cHtml += `</div>`;
-
-            // D 구역 (이미지 내보내기용)
-            let dHtml = `<div style="display: flex; flex-direction: column; align-items: center; gap: 3px; transform: rotate(-18deg); transform-origin: top left; margin-top: 10px; margin-left: 15px;">`;
-            dHtml += `<div style="font-size: 15px; font-weight: bold; color: #364d47; margin-bottom: 8px;">D</div>`;
-            const dData = [
-                { row: 1, emptyL: 0, seats: [1,2,3,4,5,6,7,8], emptyR: 2 },
-                { row: 2, emptyL: 0, seats: [1,2,3,4,5,6,7,8,9], emptyR: 1 },
-                { row: 3, emptyL: 0, seats: [1,2,3,4,5,6,7,8,9,10], emptyR: 0 },
-                { row: 4, emptyL: 0, seats: [1,2,3,4,5,6,7,8], emptyR: 2 },
-                { row: 5, emptyL: 0, seats: [1,2,3,4,5,6,7], emptyR: 3 },
-                { row: 6, emptyL: 0, seats: [1,2,3,4,5,6], emptyR: 4 }
-            ];
-            dData.forEach(d => {
-                let rHtml = `<div style="display: flex; align-items: center; gap: 3px;">`;
-                rHtml += eb(d.emptyL);
-                d.seats.forEach(s => rHtml += b(`D${d.row}-${s}`, s));
-                rHtml += eb(d.emptyR);
-                rHtml += `<span style="font-size: 11px; color: #77958b; font-weight: bold; width: 12px; text-align: left; margin-left: 6px;">${d.row}</span></div>`;
-                dHtml += rHtml;
-            });
-            dHtml += `</div>`;
-
-            let h = `<div style="width: 320px; background: #2d3e3a; color: #fff; text-align: center; padding: 6px 0; font-size: 15px; font-weight: bold; letter-spacing: 5px; border-radius: 4px; margin-bottom: 20px; box-shadow: 2px 2px 8px rgba(0,0,0,0.4);">S T A G E</div>`;
-            h += `<div style="display: flex; align-items: flex-start; justify-content: center; gap: 20px; width: 100%;">${bHtml}${cHtml}${dHtml}</div>`;
-
-            return h;
         }
 
         function renderAll() {
