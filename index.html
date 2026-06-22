@@ -155,6 +155,20 @@
             </button>
         </div>
 
+        <div id="logSheet" class="tab-content active">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex flex-col">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-sm font-bold text-slate-900 flex items-center gap-1.5">
+                            <i class="fa-solid fa-stamp text-prt-500"></i> 보유 도장판
+                        </h2>
+                        <button onclick="createNewCard()" class="text-xs bg-prt-50 text-prt-600 hover:bg-prt-100 px-2.5 py-1.5 rounded-lg font-semibold transition shadow-sm">
+                            + 추가
+                        </button>
+                    </div>
+                    <div id="cardContainer" class="space-y-3 flex-grow overflow-y-auto max-h-[400px] pr-1"></div>
+                </div>
+
                 <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex flex-col relative">
                     <div id="scheduleLoadingOverlay" class="absolute inset-0 bg-white/80 backdrop-blur-sm z-10 flex flex-col items-center justify-center rounded-2xl">
                         <i class="fa-solid fa-spinner fa-spin text-2xl text-prt-500 mb-2"></i>
@@ -261,20 +275,6 @@
                     </form>
                 </div>
 
-        <div id="logSheet" class="tab-content active">
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex flex-col">
-                    <div class="flex justify-between items-center mb-4">
-                        <h2 class="text-sm font-bold text-slate-900 flex items-center gap-1.5">
-                            <i class="fa-solid fa-stamp text-prt-500"></i> 보유 도장판
-                        </h2>
-                        <button onclick="createNewCard()" class="text-xs bg-prt-50 text-prt-600 hover:bg-prt-100 px-2.5 py-1.5 rounded-lg font-semibold transition shadow-sm">
-                            + 추가
-                        </button>
-                    </div>
-                    <div id="cardContainer" class="space-y-3 flex-grow overflow-y-auto max-h-[400px] pr-1"></div>
-                </div>
-
                 <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex flex-col">
                     <h2 class="text-sm font-bold text-slate-900 mb-4 flex items-center gap-1.5">
                         <i class="fa-solid fa-list-ol text-prt-500"></i> 관극 타임라인
@@ -326,8 +326,8 @@
                     </div>
                 </div>
                 
-                <div class="w-full pb-4">
-                    <div class="w-full border border-slate-200 bg-slate-200 grid grid-cols-7 gap-px rounded-xl overflow-hidden shadow-inner" id="calendarGrid">
+                <div class="w-full overflow-x-auto pb-4">
+                    <div class="min-w-[340px] md:min-w-full border border-slate-200 bg-slate-200 grid grid-cols-7 gap-px rounded-xl overflow-hidden shadow-inner" id="calendarGrid">
                         </div>
                 </div>
                 
@@ -485,7 +485,6 @@
                 const oldStamps = card.stamps;
                 card.stamps += record.qty;
 
-                // 재관람 혜택 (추후 변경 가능하도록 임시 로직 유지)
                 if (oldStamps < 3 && card.stamps >= 3) appData.coupons += 2;
                 if (oldStamps < 7 && card.stamps >= 7) appData.ostTickets += 1;
             });
@@ -1421,6 +1420,7 @@
             const b = (id, l) => `<div style="width: 20px; height: 20px; border-radius: 1px; display: flex; align-items: center; justify-content: center; box-sizing: border-box; font-size: 9.5px; font-family: 'Baekbeom', sans-serif; flex-shrink: 0; padding-bottom: 2px; ${getStyle(seatCounts[id]||0)}">${l}</div>`;
             const eb = (n) => Array(n).fill(`<div style="width: 20px; height: 20px; background: transparent; flex-shrink: 0;"></div>`).join('');
 
+            // B 구역 (이미지 내보내기용 - 회전 방향 수정)
             let bHtml = `<div style="display: flex; flex-direction: column; align-items: center; gap: 3px; transform: rotate(20deg); transform-origin: top right; margin-top: 25px; margin-right: 15px;">`;
             bHtml += `<div style="font-size: 15px; font-weight: bold; color: #364d47; margin-bottom: 8px;">B</div>`;
             const bData = [
@@ -1442,6 +1442,7 @@
             });
             bHtml += `</div>`;
 
+            // C 구역
             let cHtml = `<div style="display: flex; flex-direction: column; align-items: center; gap: 3px; z-index: 10; position: relative;">`;
             cHtml += `<div style="font-size: 15px; font-weight: bold; color: #364d47; margin-bottom: 8px;">C</div>`;
             const cData = [14, 15, 16, 17, 18, 21];
@@ -1453,6 +1454,7 @@
             });
             cHtml += `</div>`;
 
+            // D 구역 (이미지 내보내기용 - 회전 방향 수정)
             let dHtml = `<div style="display: flex; flex-direction: column; align-items: center; gap: 3px; transform: rotate(-20deg); transform-origin: top left; margin-top: 25px; margin-left: 15px;">`;
             dHtml += `<div style="font-size: 15px; font-weight: bold; color: #364d47; margin-bottom: 8px;">D</div>`;
             const dData = [
