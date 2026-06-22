@@ -157,17 +157,6 @@
 
         <div id="logSheet" class="tab-content active">
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex flex-col">
-                    <div class="flex justify-between items-center mb-4">
-                        <h2 class="text-sm font-bold text-slate-900 flex items-center gap-1.5">
-                            <i class="fa-solid fa-stamp text-prt-500"></i> 보유 도장판
-                        </h2>
-                        <button onclick="createNewCard()" class="text-xs bg-prt-50 text-prt-600 hover:bg-prt-100 px-2.5 py-1.5 rounded-lg font-semibold transition shadow-sm">
-                            + 추가
-                        </button>
-                    </div>
-                    <div id="cardContainer" class="space-y-3 flex-grow overflow-y-auto max-h-[400px] pr-1"></div>
-                </div>
 
                 <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex flex-col relative">
                     <div id="scheduleLoadingOverlay" class="absolute inset-0 bg-white/80 backdrop-blur-sm z-10 flex flex-col items-center justify-center rounded-2xl">
@@ -273,6 +262,18 @@
                             💾 저장 및 적립
                         </button>
                     </form>
+                </div>
+                
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex flex-col">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-sm font-bold text-slate-900 flex items-center gap-1.5">
+                            <i class="fa-solid fa-stamp text-prt-500"></i> 보유 도장판
+                        </h2>
+                        <button onclick="createNewCard()" class="text-xs bg-prt-50 text-prt-600 hover:bg-prt-100 px-2.5 py-1.5 rounded-lg font-semibold transition shadow-sm">
+                            + 추가
+                        </button>
+                    </div>
+                    <div id="cardContainer" class="space-y-3 flex-grow overflow-y-auto max-h-[400px] pr-1"></div>
                 </div>
 
                 <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex flex-col">
