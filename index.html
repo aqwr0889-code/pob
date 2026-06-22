@@ -52,7 +52,6 @@
 
         input[type="date"] { box-sizing: border-box; max-width: 100%; -webkit-appearance: none; }
         
-        /* 양옆 짤림 방지: hidden을 없애고 visible로 변경하여 요소가 자유롭게 축소되게 함 */
         .heatmap-container { width: 100%; overflow: visible; padding-bottom: 30px; padding-top: 10px; }
 
         .modal-overlay {
@@ -149,6 +148,7 @@
                         <i class="fa-solid fa-spinner fa-spin text-2xl text-prt-500 mb-2"></i>
                         <span class="text-xs font-bold text-slate-600 mt-2">스케줄 불러오는 중...</span>
                     </div>
+
                     <div class="flex justify-between items-center mb-4">
                         <div class="flex items-center gap-1.5">
                             <h2 class="text-sm font-bold text-slate-900 flex items-center gap-1.5" id="formTitle">
@@ -222,8 +222,20 @@
                         </div>
                         <div>
                             <label class="block text-xs font-semibold text-slate-500 mb-1">좌석 정보</label>
-                            <input type="text" id="seatInfo" placeholder="예: C1-14, B3-8 (미입력 시 '관극 예정')" 
-                                class="w-full border border-slate-200 p-2 rounded-xl text-sm focus:outline-none focus:border-prt-500 uppercase">
+                            <div class="flex gap-2">
+                                <select id="seatZone" onchange="toggleSeatSelects('main')" class="flex-1 border border-slate-200 p-2 rounded-xl text-sm focus:outline-none focus:border-prt-500 cursor-pointer bg-white transition-colors hover:bg-slate-50 text-slate-700">
+                                    <option value="">관극 예정</option>
+                                    <option value="B">B구역</option>
+                                    <option value="C">C구역</option>
+                                    <option value="D">D구역</option>
+                                </select>
+                                <select id="seatRow" class="flex-1 border border-slate-200 p-2 rounded-xl text-sm focus:outline-none focus:border-prt-500 cursor-pointer disabled:bg-slate-100 disabled:text-slate-400 disabled:cursor-not-allowed bg-slate-100 transition-colors hover:bg-slate-50 text-slate-700" disabled>
+                                    <!-- JS에서 자동 생성 -->
+                                </select>
+                                <select id="seatNum" class="flex-1 border border-slate-200 p-2 rounded-xl text-sm focus:outline-none focus:border-prt-500 cursor-pointer disabled:bg-slate-100 disabled:text-slate-400 disabled:cursor-not-allowed bg-slate-100 transition-colors hover:bg-slate-50 text-slate-700" disabled>
+                                    <!-- JS에서 자동 생성 -->
+                                </select>
+                            </div>
                         </div>
                         
                         <div class="grid grid-cols-2 gap-3 mt-auto pt-2" id="stampSettingsArea">
@@ -383,15 +395,18 @@
                 </div>
 
                 <div class="heatmap-container relative w-full flex flex-col items-center pb-12 w-full max-w-5xl mx-auto">
+                    <!-- STAGE가 무조건 정중앙에 위치하도록 상위 컨테이너 중앙 정렬 -->
                     <div class="w-[180px] md:w-[320px] bg-slate-800 text-white text-center text-[10px] md:text-xs py-1.5 md:py-2 rounded-b-xl md:rounded-b-2xl tracking-widest font-bold shadow-sm mb-4 md:mb-6 z-20">
                         S T A G E
                     </div>
+                    <!-- 좌석표 그리드 -->
                     <div class="w-full flex justify-center items-start" id="seating-grid"></div>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- 스케줄 모달 -->
     <div id="scheduleDetailModal" class="modal-overlay z-[110]" onclick="if(event.target === this) closeScheduleDetailModal()">
         <div class="bg-white rounded-2xl p-6 w-full max-w-md flex flex-col shadow-2xl relative">
             <button onclick="closeScheduleDetailModal()" class="absolute top-4 right-4 text-slate-400 hover:text-rose-500 transition text-xl px-2">
@@ -409,6 +424,44 @@
     </footer>
 
     <script>
+        function initSeatSelects() {
+            let rowOpts = '<option value="">열 선택</option>';
+            for(let i=1; i<=7; i++) rowOpts += `<option value="${i}">${i}열</option>`;
+            
+            let numOpts = '<option value="">번호 선택</option>';
+            for(let i=1; i<=21; i++) numOpts += `<option value="${i}">${i}번</option>`;
+
+            const sRow = document.getElementById('seatRow');
+            const sNum = document.getElementById('seatNum');
+            if(sRow) sRow.innerHTML = rowOpts;
+            if(sNum) sNum.innerHTML = numOpts;
+        }
+
+        function toggleSeatSelects(type) {
+            const prefix = type === 'main' ? 'seat' : 'quickSeat';
+            const zone = document.getElementById(prefix + 'Zone').value;
+            const rowSel = document.getElementById(prefix + 'Row');
+            const numSel = document.getElementById(prefix + 'Num');
+
+            if (zone) {
+                rowSel.disabled = false;
+                numSel.disabled = false;
+                rowSel.classList.remove('bg-slate-100'); rowSel.classList.add('bg-white', 'hover:bg-slate-50');
+                numSel.classList.remove('bg-slate-100'); numSel.classList.add('bg-white', 'hover:bg-slate-50');
+                if(type === 'quick') {
+                   rowSel.classList.replace('bg-slate-100', 'bg-slate-50');
+                   numSel.classList.replace('bg-slate-100', 'bg-slate-50');
+                }
+            } else {
+                rowSel.disabled = true;
+                numSel.disabled = true;
+                rowSel.value = '';
+                numSel.value = '';
+                rowSel.classList.remove('bg-white', 'hover:bg-slate-50'); rowSel.classList.add('bg-slate-100');
+                numSel.classList.remove('bg-white', 'hover:bg-slate-50'); numSel.classList.add('bg-slate-100');
+            }
+        }
+
         function recalculateState() {
             sortRecordsChronologically();
 
@@ -726,7 +779,29 @@
             document.getElementById('castMarcello').value = r.marcello;
             document.getElementById('castJacopo').value = r.jacopo;
             
-            document.getElementById('seatInfo').value = (r.seat === '관극 예정') ? '' : r.seat; 
+            const rSeat = r.seat;
+            const zSel = document.getElementById('seatZone');
+            const rSel = document.getElementById('seatRow');
+            const nSel = document.getElementById('seatNum');
+            
+            if (!rSeat || rSeat === '관극 예정') {
+                zSel.value = '';
+                rSel.value = '';
+                nSel.value = '';
+            } else {
+                const match = rSeat.match(/^([BCD])(\d+)-(\d+)$/i);
+                if (match) {
+                    zSel.value = match[1].toUpperCase();
+                    rSel.value = match[2];
+                    nSel.value = match[3];
+                } else {
+                    zSel.value = '';
+                    rSel.value = '';
+                    nSel.value = '';
+                }
+            }
+            toggleSeatSelects('main');
+            
             document.getElementById('stampsEarned').value = r.qty;
             document.getElementById('couponType').value = r.couponType || (r.useCoupon ? '40' : '');
 
@@ -735,14 +810,20 @@
         }
 
         function cancelEdit() {
-            document.getElementById('editRecordId').value = ''; document.getElementById('recordForm').reset();
+            document.getElementById('editRecordId').value = ''; 
+            document.getElementById('recordForm').reset();
             document.getElementById('editCardArea').classList.add('hidden');
+            
+            document.getElementById('seatZone').value = '';
+            toggleSeatSelects('main');
+
             const t = new Date();
             let defaultDate = `${t.getFullYear()}-${String(t.getMonth() + 1).padStart(2, '0')}-${String(t.getDate()).padStart(2, '0')}`;
             if (defaultDate < '2026-07-28') defaultDate = '2026-07-28';
             if (defaultDate > '2026-10-18') defaultDate = '2026-10-18';
             document.getElementById('perfDate').value = defaultDate; 
             handleDateChange();
+            
             document.getElementById('formTitle').innerHTML = '<i class="fa-solid fa-pen text-prt-500"></i> 관극 기록';
             document.getElementById('submitBtn').innerText = '💾 저장 및 적립'; document.getElementById('submitBtn').classList.replace('bg-amber-600', 'bg-slate-900'); document.getElementById('cancelEditBtn').classList.add('hidden');
         }
@@ -753,10 +834,17 @@
             const date = document.getElementById('perfDate').value, time = document.getElementById('perfTime').value.replace(' (수동)', '');
             const rosina = document.getElementById('castRosina').value, martha = document.getElementById('castMartha').value;
             const marcello = document.getElementById('castMarcello').value, jacopo = document.getElementById('castJacopo').value;
-            let seat = document.getElementById('seatInfo').value.toUpperCase().replace(/\s+/g, '');
             
-            const seatRegex = /^[BCD][1-7]-[1-9][0-9]?$/i;
-            if (!seat || seat === '관극예정') seat = '관극 예정'; else if (!seatRegex.test(seat)) return alert('유효하지 않은 좌석명입니다. (예: C1-14, B3-8)');
+            const zone = document.getElementById('seatZone').value;
+            const row = document.getElementById('seatRow').value;
+            const num = document.getElementById('seatNum').value;
+            
+            let seat = '관극 예정';
+            if (zone) {
+                if (!row || !num) return alert('좌석 열과 번호를 모두 선택해주세요.');
+                seat = `${zone}${row}-${num}`;
+            }
+
             if(!time) return alert('회차를 선택해주세요.');
 
             const targetQty = parseInt(document.getElementById('stampsEarned').value);
@@ -863,6 +951,11 @@
                 return `<option value="${c.id}" ${isSelected}>📁 도장판 #${i+1} (현재 ${c.stamps}개 / 최대 7개)</option>`;
             }).join('');
 
+            let rowOpts = '<option value="">열 선택</option>';
+            for(let i=1; i<=7; i++) rowOpts += `<option value="${i}">${i}열</option>`;
+            let numOpts = '<option value="">번호 선택</option>';
+            for(let i=1; i<=21; i++) numOpts += `<option value="${i}">${i}번</option>`;
+
             html += `
                 <div class="mt-4 border-t border-slate-200 pt-4">
                     <h4 class="text-xs font-bold text-slate-700 mb-2 flex items-center gap-1.5"><i class="fa-solid fa-bolt text-prt-500"></i> 빠른 관극 기록 추가</h4>
@@ -870,7 +963,20 @@
                         <select id="quickCardId" class="w-full border border-slate-200 p-2 rounded-lg text-xs focus:outline-none focus:border-prt-500 bg-slate-50 font-medium">
                             ${cardOptions}
                         </select>
-                        <input type="text" id="quickSeat" placeholder="좌석 정보 (예: C1-14, 미입력 시 '관극 예정')" class="w-full border border-slate-200 p-2 rounded-lg text-xs focus:outline-none focus:border-prt-500 uppercase">
+                        <div class="flex gap-2">
+                            <select id="quickSeatZone" onchange="toggleSeatSelects('quick')" class="flex-1 border border-slate-200 p-2 rounded-lg text-xs focus:outline-none focus:border-prt-500 bg-white cursor-pointer transition">
+                                <option value="">관극 예정</option>
+                                <option value="B">B구역</option>
+                                <option value="C">C구역</option>
+                                <option value="D">D구역</option>
+                            </select>
+                            <select id="quickSeatRow" class="flex-1 border border-slate-200 p-2 rounded-lg text-xs focus:outline-none focus:border-prt-500 bg-slate-100 disabled:text-slate-400 cursor-pointer transition" disabled>
+                                ${rowOpts}
+                            </select>
+                            <select id="quickSeatNum" class="flex-1 border border-slate-200 p-2 rounded-lg text-xs focus:outline-none focus:border-prt-500 bg-slate-100 disabled:text-slate-400 cursor-pointer transition" disabled>
+                                ${numOpts}
+                            </select>
+                        </div>
                         
                         <div class="flex gap-2">
                             <select id="quickStamps" class="flex-1 border border-slate-200 p-2 rounded-lg text-xs focus:outline-none focus:border-prt-500">
@@ -901,9 +1007,15 @@
         }
 
         function quickAddRecord(date, time, rosina, martha, marcello, jacopo) {
-            let seat = document.getElementById('quickSeat').value.toUpperCase().replace(/\s+/g, '');
-            const seatRegex = /^[BCD][1-7]-[1-9][0-9]?$/i;
-            if (!seat) seat = '관극 예정'; else if (!seatRegex.test(seat)) return alert('유효하지 않은 좌석명입니다. (예: C1-14, B3-8)');
+            const zone = document.getElementById('quickSeatZone').value;
+            const row = document.getElementById('quickSeatRow').value;
+            const num = document.getElementById('quickSeatNum').value;
+            
+            let seat = '관극 예정';
+            if (zone) {
+                if (!row || !num) return alert('좌석 열과 번호를 모두 선택해주세요.');
+                seat = `${zone}${row}-${num}`;
+            }
             
             const qty = parseInt(document.getElementById('quickStamps').value);
             const couponType = document.getElementById('quickCouponType').value;
@@ -951,7 +1063,6 @@
 
             const getColorClass = (c) => c===0?'bg-slate-100 text-slate-300 border border-slate-200':c===1?'bg-red-200 text-red-900 border border-red-300':c===2?'bg-yellow-200 text-yellow-900 border border-yellow-300':c===3?'bg-green-200 text-green-900 border border-green-300':c===4?'bg-blue-200 text-blue-900 border border-blue-300':'bg-prt-500 text-white font-bold border border-prt-600 shadow-sm';
             
-            // 모바일 화면에서 절대 벗어나지 않도록 기준 픽셀(w/h)을 더 작게 쪼개어 세분화
             const baseW = "w-[5px] min-[380px]:w-[6px] min-[450px]:w-[7.5px] sm:w-[11px] md:w-[14px] lg:w-[18px]";
             const baseH = "h-[5px] min-[380px]:h-[6px] min-[450px]:h-[7.5px] sm:h-[11px] md:h-[14px] lg:h-[18px]";
             const baseText = "text-[3.5px] min-[380px]:text-[4.5px] min-[450px]:text-[5px] sm:text-[6px] md:text-[8px] lg:text-[10px]";
@@ -1016,7 +1127,6 @@
             });
             dHtml += `</div>`;
 
-            // 강제로 영역을 지정하여 짜부러지게 만들던 flex-1 옵션을 flex-none으로 변경하여 넘치지 않고 자연스럽게 축소+가운데 정렬되게 구성
             document.getElementById('seating-grid').innerHTML = `
                 <div class="flex items-start justify-center w-full max-w-full relative px-0 sm:px-2 md:px-4">
                     <div class="flex-none flex justify-end mr-0.5 min-[380px]:mr-1 sm:mr-3 md:mr-5 pt-1">
@@ -1267,6 +1377,7 @@
         }
 
         window.onload = async function() { 
+            initSeatSelects();
             const today = new Date();
             let yyyy = today.getFullYear();
             let mm = String(today.getMonth() + 1).padStart(2, '0');
