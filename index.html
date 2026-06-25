@@ -1470,10 +1470,13 @@
                 for(let d=1; d<=7; d++) {
                     if (d <= c.stamps) {
                         let inn = '🎨', cls = 'bg-prt-300 text-prt-900 border border-prt-400 text-[9px]'; 
-                        if (d===3) { inn = '🎟️'; cls = 'bg-prt-700 text-white shadow-sm'; }
-                        if (d===7) { inn = '🎁'; cls = 'bg-prt-700 text-white shadow-sm'; }
+                        if (d===3) { inn = '🎟️'; cls = 'bg-prt-700 text-white shadow-sm'; } // 3회차: 40%
+                        if (d===5) { inn = '🎫'; cls = 'bg-prt-700 text-white shadow-sm'; } // 5회차: 50%
+                        if (d===7) { inn = '🎁'; cls = 'bg-prt-700 text-white shadow-sm'; } // 7회차: 교환권
                         dots += `<div class="w-6 h-6 rounded-full flex items-center justify-center text-[10px] ${cls} font-bold">${inn}</div>`;
-                    } else dots += `<div class="w-6 h-6 rounded-full flex items-center justify-center text-[10px] bg-white border text-slate-300">${d}</div>`;
+                    } else {
+                        dots += `<div class="w-6 h-6 rounded-full flex items-center justify-center text-[10px] bg-white border text-slate-300">${d}</div>`;
+                    }
                 }
                 cb.innerHTML += `<div class="p-3 rounded-xl border cursor-pointer transition-all ${c.isActive ? 'bg-prt-50/80 border-prt-500 shadow-sm' : 'bg-slate-50 border-slate-200 hover:bg-slate-100'}" onclick="switchCard(${c.id})"><div class="flex justify-between items-center mb-2"><span class="text-xs font-bold text-slate-800">${c.isActive ? '🔥 [사용중] ' : '📁 '} 도장판 #${i+1}</span><button onclick="deleteCard(${c.id}, event)" class="text-[10px] text-rose-500 hover:underline">삭제</button></div><div class="flex gap-1">${dots}</div></div>`;
             });
