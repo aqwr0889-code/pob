@@ -1045,11 +1045,17 @@
             if (records.length > 0) {
                 html += `<h4 class="text-xs font-bold text-prt-600 mb-2 border-b border-prt-100 pb-1.5 flex items-center gap-1"><i class="fa-solid fa-ticket"></i> 나의 예매/관극 정보</h4>`;
                 records.forEach((r, idx) => {
+                    let displaySeat = r.seat;
+                    if (displaySeat && displaySeat !== '관극 예정') {
+                        const match = displaySeat.match(/^([A-Za-z]+)(\d+)-(\d+)$/);
+                        if (match) displaySeat = `${match[1].toUpperCase()}구역 ${match[2]}열 ${match[3]}번`;
+                    }
+
                     html += `
                         <div class="flex justify-between items-center bg-white p-3 rounded-lg border border-prt-200 mb-2 shadow-sm">
                             <div class="flex items-center gap-2">
                                 <span class="bg-prt-100 text-prt-800 text-[10px] px-2 py-0.5 rounded font-bold">좌석</span>
-                                <span class="text-sm font-bold text-slate-800">${r.seat}</span>
+                                <span class="text-sm font-bold text-slate-800">${displaySeat}</span>
                             </div>
                             <div class="text-[10px]">
                                 ${r.couponType === '40' || r.useCoupon ? '<span class="bg-amber-100 text-amber-800 px-2 py-1 rounded font-bold">40% 할인 O</span>' : r.couponType === '50' ? '<span class="bg-orange-100 text-orange-800 px-2 py-1 rounded font-bold">50% 할인 O</span>' : r.couponType === 'other' ? '<span class="bg-purple-100 text-purple-800 px-2 py-1 rounded font-bold">기타 할인 O</span>' : '<span class="bg-slate-100 text-slate-500 px-2 py-1 rounded font-bold">할인 미사용</span>'}
@@ -1500,7 +1506,13 @@
                 if(used50) cpBadge += '<span class="bg-orange-100 text-orange-800 text-[9px] font-bold px-1 rounded flex-shrink-0 mr-0.5">50%할인</span>';
                 if(usedOther) cpBadge += '<span class="bg-purple-100 text-purple-800 text-[9px] font-bold px-1 rounded flex-shrink-0 mr-0.5">기타할인</span>';
 
-                tbody.innerHTML += `<tr class="hover:bg-slate-50 transition"><td class="py-3 px-1"><div class="flex justify-between items-start mb-1"><div class="font-bold text-slate-800 flex items-center flex-wrap gap-y-1"><span class="bg-stone-200 text-stone-700 px-1.5 py-0.5 rounded text-[9px] mr-1 font-bold">[자${sMap[g.gid]}]</span>${cStr}<span class="ml-0.5">${main.date} <span class="text-prt-500 text-[10px] font-bold">${main.time}</span></span></div><div class="flex gap-1.5 items-center pl-2">${cpBadge}<span class="text-prt-500 font-bold whitespace-nowrap">${qStr}</span></div></div><div class="flex justify-between items-center text-slate-600 mt-1"><span>${main.rosina}, ${main.martha}, ${main.marcello}, ${main.jacopo}</span><div class="flex gap-3 items-center"><span class="font-bold text-prt-900">${main.seat}</span><div class="flex gap-1.5"><button onclick="editRecord(${main.id})" class="text-[10px] bg-slate-100 text-slate-500 hover:bg-amber-100 hover:text-amber-600 px-1.5 py-0.5 rounded transition">수정</button><button onclick="deleteRecord(${main.id})" class="text-[10px] bg-slate-100 text-slate-500 hover:bg-rose-100 hover:text-rose-600 px-1.5 py-0.5 rounded transition">삭제</button></div></div></div></td></tr>`;            });
+                let displaySeat = main.seat;
+                if (displaySeat && displaySeat !== '관극 예정') {
+                    const match = displaySeat.match(/^([A-Za-z]+)(\d+)-(\d+)$/);
+                    if (match) displaySeat = `${match[1].toUpperCase()}구역 ${match[2]}열 ${match[3]}번`;
+                }
+
+                tbody.innerHTML += `<tr class="hover:bg-slate-50 transition"><td class="py-3 px-1"><div class="flex justify-between items-start mb-1"><div class="font-bold text-slate-800 flex items-center flex-wrap gap-y-1"><span class="bg-stone-200 text-stone-700 px-1.5 py-0.5 rounded text-[9px] mr-1 font-bold">[자${sMap[g.gid]}]</span>${cStr}<span class="ml-0.5">${main.date} <span class="text-prt-500 text-[10px] font-bold">${main.time}</span></span></div><div class="flex gap-1.5 items-center pl-2">${cpBadge}<span class="text-prt-500 font-bold whitespace-nowrap">${qStr}</span></div></div><div class="flex justify-between items-center text-slate-600 mt-1"><span>${main.rosina}, ${main.martha}, ${main.marcello}, ${main.jacopo}</span><div class="flex gap-3 items-center"><span class="font-bold text-prt-900">${displaySeat}</span><div class="flex gap-1.5"><button onclick="editRecord(${main.id})" class="text-[10px] bg-slate-100 text-slate-500 hover:bg-amber-100 hover:text-amber-600 px-1.5 py-0.5 rounded transition">수정</button><button onclick="deleteRecord(${main.id})" class="text-[10px] bg-slate-100 text-slate-500 hover:bg-rose-100 hover:text-rose-600 px-1.5 py-0.5 rounded transition">삭제</button></div></div></div></td></tr>`;            });
             
             generateHeatmap(); 
             calculateStatsSheet();
