@@ -91,10 +91,10 @@
                     </button>
 
                     <div class="relative group inline-block">
-                        <button class="text-prt-300 hover:text-white text-xs p-1 focus:outline-none flex items-center justify-center">
-                            <i class="fa-solid fa-circle-info"></i>
+                        <button onclick="toggleTooltip('headerTooltip', event)" class="text-prt-300 hover:text-white text-xs p-1 focus:outline-none flex items-center justify-center">
+                            <i class="fa-solid fa-circle-info pointer-events-none"></i>
                         </button>
-                        <div class="absolute top-full right-0 md:left-0 md:right-auto mt-2 w-[280px] max-w-[85vw] bg-slate-950 text-slate-200 text-[11px] p-3 rounded-xl shadow-xl border border-slate-700 hidden group-hover:block z-50 space-y-1.5 leading-relaxed text-left">
+                        <div id="headerTooltip" onclick="event.stopPropagation()" class="custom-tooltip absolute top-full right-0 md:left-0 md:right-auto mt-2 w-[280px] max-w-[85vw] bg-slate-950 text-slate-200 text-[11px] p-3 rounded-xl shadow-xl border border-slate-700 hidden lg:group-hover:block z-50 space-y-1.5 leading-relaxed text-left">
                             <p class="font-bold text-prt-500 border-b border-slate-800 pb-1 flex items-center gap-1">
                                 <i class="fa-solid fa-gear"></i> 데이터 관리 안내
                             </p>
@@ -152,8 +152,8 @@
                                 <i class="fa-solid fa-pen text-prt-500"></i> 관극 기록
                             </h2>
                              <div class="relative group inline-block">
-                                <i class="fa-solid fa-circle-question text-slate-400 hover:text-prt-500 text-sm cursor-pointer transition"></i>
-                                <div class="absolute bottom-full left-0 mb-2 w-[270px] bg-slate-800 text-slate-100 text-[11px] p-3.5 rounded-xl shadow-xl hidden group-hover:block z-50 leading-relaxed text-left font-normal border border-slate-700">
+                                <i onclick="toggleTooltip('formTooltip', event)" class="fa-solid fa-circle-question text-slate-400 hover:text-prt-500 text-sm cursor-pointer transition"></i>
+                                <div id="formTooltip" onclick="event.stopPropagation()" class="custom-tooltip absolute bottom-full left-0 mb-2 w-[270px] bg-slate-800 text-slate-100 text-[11px] p-3.5 rounded-xl shadow-xl hidden lg:group-hover:block z-50 leading-relaxed text-left font-normal border border-slate-700">
                                     <p class="font-bold text-prt-300 border-b border-slate-700 pb-1 mb-2 flex items-center gap-1">
                                         <i class="fa-solid fa-lightbulb"></i> 기록 작성 방법
                                     </p>
@@ -1519,6 +1519,20 @@
             renderCalendar();
         }
 
+        function toggleTooltip(id, e) {
+            e.stopPropagation();
+            const target = document.getElementById(id);
+            const isHidden = target.classList.contains('hidden');
+            
+            document.querySelectorAll('.custom-tooltip').forEach(el => el.classList.add('hidden'));
+            
+            if (isHidden) target.classList.remove('hidden');
+        }
+
+        document.addEventListener('click', function() {
+            document.querySelectorAll('.custom-tooltip').forEach(el => el.classList.add('hidden'));
+        });
+        
         window.onload = async function() { 
             initSeatSelects();
             const today = new Date();
